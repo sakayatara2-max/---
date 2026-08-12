@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#FFE3EC" id="themeColorMeta">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ぽちたす">
+<meta name="description" content="ぽちっと押すだけの、かわいいタスク管理アプリ">
+<title>ぽちたす-ぽちっとタスク管理</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23FF9EBB%22/><text x=%2250%22 y=%2266%22 font-size=%2255%22 text-anchor=%22middle%22>✨</text></svg>">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22%E3%81%BD%E3%81%A1%E3%81%9F%E3%81%99%22,%22short_name%22:%22%E3%81%BD%E3%81%A1%E3%81%9F%E3%81%99%22,%22display%22:%22standalone%22,%22start_url%22:%22.%22,%22background_color%22:%22%23FFF4F8%22,%22theme_color%22:%22%23FF9EBB%22}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<style>
+:root{
+  --bg-a:#FFF4F8;--bg-b:#F3E8FB;--card:#FFFFFF;--pink:#FF9EBB;--pink-dark:#FF7FA3;--pink-light:#FFE3EC;
+  --mint:#A8E6CF;--lavender:#E4D7F5;--text:#6E5A6E;--text-soft:#BFA9C9;--done-bg:#F5EAF8;--shadow:rgba(255,140,175,.22);
+  --field-bg:#FFFBFD;
+}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}button{font-family:inherit;}
+body{font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN',sans-serif;background:linear-gradient(160deg,var(--bg-a) 0%,var(--bg-a) 45%,var(--bg-b) 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:20px 14px 60px;transition:background .35s ease,color .35s ease;}
+.app{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px;}
+
+/* ===== Header ===== */
+header{text-align:center;padding:6px 84px 2px;position:relative;}
+header h1{margin:0;font-size:1.5rem;font-weight:800;color:var(--pink-dark);letter-spacing:.02em;}
+header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
+.header-icon-btn{position:absolute;top:6px;width:38px;height:38px;border:2px solid var(--pink-light);border-radius:50%;background:var(--card);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px var(--shadow);transition:transform .15s,border-color .15s,background .15s;}
+.header-icon-btn:active{transform:scale(.9);}
+.header-icon-btn.active{border-color:var(--pink);background:var(--pink-light);}
+#notifHeaderBtn{right:0;}
+#themeHeaderBtn{right:44px;}
+
+/* ===== Progress ===== */
+.progress-card{background:var(--card);border-radius:22px;padding:16px 18px;box-shadow:0 8px 22px var(--shadow);}
+.progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.85rem;font-weight:700;}
+.progress-top .label{color:var(--pink-dark);}
+.progress-track{height:12px;background:var(--pink-light);border-radius:999px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--pink));transition:width .5s cubic-bezier(.4,1.4,.6,1);width:0%;}
+.progress-mood{margin-top:10px;font-size:.85rem;text-align:center;}
+
+/* ===== Controls ===== */
+.controls-card{background:var(--card);border-radius:22px;padding:14px 16px;box-shadow:0 8px 22px var(--shadow);display:flex;flex-direction:column;gap:10px;}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:0 12px;transition:border-color .15s;}
+.search-wrap:focus-within{border-color:var(--pink);}
+.search-ico{font-size:1rem;flex-shrink:0;}
+.search-input{flex:1;border:none;background:none;padding:10px 0;font-family:inherit;font-size:.95rem;color:var(--text);outline:none;min-width:0;}
+.search-input::placeholder{color:var(--text-soft);}
+.search-clear{background:none;border:none;color:var(--text-soft);font-size:1.1rem;cursor:pointer;padding:4px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.tag-filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.tag-filters::-webkit-scrollbar{display:none;}
+.tag-filter-btn{flex-shrink:0;padding:6px 14px;border:2px solid var(--pink-light);border-radius:999px;background:var(--card);color:var(--text);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,color .15s;white-space:nowrap;}
+.tag-filter-btn.active{background:var(--pink);border-color:var(--pink);color:white;}
+.action-row{display:flex;gap:8px;}
+.sort-btn{flex:1;padding:9px 8px;border:2px solid var(--lavender);border-radius:12px;background:var(--lavender);color:var(--text);font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s;}
+.sort-btn.active{background:var(--pink-light);border-color:var(--pink);color:var(--pink-dark);}
+.bulk-delete-btn{flex:1;padding:9px 8px;border:2px solid #ffcdd8;border-radius:12px;background:#fff0f4;color:var(--pink-dark);font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:background .15s;}
+.bulk-delete-btn.confirming{background:var(--pink-dark);border-color:var(--pink-dark);color:white;}
+.filter-info{font-size:.76rem;color:var(--text-soft);text-align:center;padding:2px 0;}
+
+/* ===== Task Cards ===== */
+.task-list{display:flex;flex-direction:column;gap:10px;}
+.task-card{position:relative;background:var(--card);border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;box-shadow:0 4px 16px rgba(20,10,26,.08);transition:opacity .25s,background .25s;}
+.task-card.done{background:var(--done-bg);opacity:.72;}
+.task-card.done .task-subject{text-decoration:line-through;color:var(--text-soft);}
+.task-main-row{display:flex;align-items:center;gap:9px;}
+
+.drag-handle{width:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--text-soft);font-size:1rem;user-select:none;touch-action:none;letter-spacing:-2px;}
+.drag-handle:active{cursor:grabbing;}
+.sortable-ghost{opacity:.4;background:var(--pink-light)!important;border-radius:20px;}
+.sortable-chosen{box-shadow:0 8px 28px rgba(255,140,175,.35)!important;}
+
+.check-btn{width:32px;height:32px;flex-shrink:0;border-radius:50%;border:2px solid var(--pink);background:var(--card);color:var(--pink);font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s,transform .15s;}
+.check-btn:active{transform:scale(.85);}
+.task-card.done .check-btn{background:var(--pink);color:#fff;}
+.task-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
+.task-subject{font-weight:700;font-size:.95rem;word-break:break-word;line-height:1.3;}
+.task-meta{display:flex;flex-wrap:wrap;gap:4px;}
+.badge{font-size:.7rem;font-weight:500;padding:3px 8px;border-radius:999px;background:var(--lavender);color:var(--text);white-space:nowrap;}
+.badge.deadline{background:var(--mint);}
+.badge.deadline.overdue{background:#FFC9C9;color:#8a2a2a;}
+.badge.stars{background:var(--pink-light);}
+.task-photo-thumb{width:48px;height:48px;flex-shrink:0;border-radius:12px;object-fit:cover;cursor:pointer;box-shadow:0 2px 8px rgba(20,10,26,.18);border:2px solid var(--pink-light);transition:transform .15s;}
+.task-photo-thumb:active{transform:scale(.88);}
+.task-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.edit-btn{width:30px;height:30px;border:none;border-radius:50%;background:var(--lavender);color:var(--text);font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;}
+.edit-btn:active{transform:scale(.85);background:var(--pink-light);}
+.delete-btn{width:30px;height:30px;border:none;border-radius:50%;background:var(--pink-light);color:var(--pink-dark);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;}
+.delete-btn:active{transform:scale(.85);background:var(--pink);color:#fff;}
+
+/* ===== Subtasks in card ===== */
+.subtask-section{margin-top:10px;padding-top:10px;border-top:1.5px solid var(--pink-light);}
+.subtask-toggle{width:100%;display:flex;align-items:center;gap:8px;background:none;border:none;padding:3px 0;cursor:pointer;color:var(--text);font-family:inherit;font-size:.78rem;font-weight:600;text-align:left;}
+.st-arrow{font-size:.65rem;color:var(--text-soft);flex-shrink:0;}
+.st-label{flex:1;}
+.subtask-mini-bar{width:56px;height:6px;background:var(--pink-light);border-radius:999px;overflow:hidden;flex-shrink:0;}
+.subtask-mini-fill{height:100%;background:linear-gradient(90deg,var(--mint),var(--pink));border-radius:999px;transition:width .4s ease;}
+.subtask-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.subtask-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 4px;border-radius:10px;transition:background .1s;}
+.subtask-item:hover{background:var(--pink-light);}
+.subtask-item.done .subtask-text{text-decoration:line-through;color:var(--text-soft);}
+.subtask-item input[type="checkbox"]{width:17px;height:17px;accent-color:var(--pink);flex-shrink:0;cursor:pointer;}
+.subtask-text{flex:1;font-size:.84rem;word-break:break-word;}
+.subtask-del-btn{width:20px;height:20px;border:none;border-radius:50%;background:none;color:var(--text-soft);font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.3;transition:opacity .15s,background .15s;flex-shrink:0;}
+.subtask-item:hover .subtask-del-btn{opacity:1;background:var(--pink-light);color:var(--pink-dark);}
+.subtask-add-row{display:flex;gap:6px;margin-top:6px;}
+.subtask-add-input{flex:1;font-family:inherit;font-size:.82rem;padding:7px 10px;border:1.5px solid var(--pink-light);border-radius:10px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;min-width:0;}
+.subtask-add-input:focus{border-color:var(--pink);}
+.subtask-add-input::placeholder{color:var(--text-soft);}
+.subtask-add-btn-inline{padding:7px 11px;border:1.5px solid var(--pink);border-radius:10px;background:var(--pink-light);color:var(--pink-dark);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+.subtask-add-btn-inline:active{background:var(--pink);color:white;}
+
+/* ===== Empty state ===== */
+.empty-state{text-align:center;padding:34px 16px;color:var(--text-soft);font-size:.9rem;line-height:1.7;background:var(--card);border-radius:20px;box-shadow:0 4px 16px rgba(20,10,26,.06);}
+.empty-state .big{font-size:2rem;display:block;margin-bottom:6px;}
+
+/* ===== Add Form ===== */
+.add-toggle{width:100%;padding:14px;border:2px dashed var(--pink);border-radius:20px;background:transparent;color:var(--pink-dark);font-weight:700;font-size:.95rem;cursor:pointer;transition:background .15s;}
+.add-toggle:active{background:var(--pink-light);}
+.add-card{background:var(--card);border-radius:22px;padding:0 18px;box-shadow:0 8px 22px var(--shadow);display:flex;flex-direction:column;gap:12px;max-height:0;overflow:hidden;opacity:0;transition:max-height .45s ease,opacity .28s ease,padding .45s ease;}
+.add-card.open{max-height:2000px;opacity:1;padding:18px;}
+.add-card h2{margin:0;font-size:.95rem;color:var(--pink-dark);}
+.field label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;}
+.field input[type="text"],.field input[type="date"],.field input[type="password"]{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;}
+.field input:focus{border-color:var(--pink);}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;min-width:0;}
+.star-picker{display:flex;gap:6px;align-items:center;justify-content:center;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:10px;height:46px;}
+.star-picker button{background:none;border:none;font-size:1.35rem;cursor:pointer;line-height:1;filter:grayscale(1) opacity(.35);transition:filter .1s,transform .1s;}
+.star-picker button.active{filter:none;}
+.star-picker button:active{transform:scale(1.25);}
+.photo-upload-area{border:2px dashed var(--pink-light);border-radius:14px;background:var(--field-bg);min-height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:border-color .15s,background .15s;}
+.photo-upload-area.empty{cursor:pointer;}
+.photo-upload-area.empty:hover{border-color:var(--pink);background:var(--pink-light);}
+.photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-soft);font-size:.82rem;padding:14px;pointer-events:none;text-align:center;}
+.photo-placeholder .ph-ico{font-size:1.7rem;line-height:1.2;}
+.ph-hint{font-size:.68rem;margin-top:2px;}
+.photo-preview-wrap{width:100%;display:flex;align-items:center;justify-content:center;padding:10px;position:relative;}
+.photo-preview-img{max-height:110px;max-width:100%;border-radius:10px;object-fit:contain;box-shadow:0 2px 8px rgba(20,10,26,.15);}
+.photo-clear-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(20,10,26,.55);color:white;font-size:.78rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.subtask-form-list{display:flex;flex-direction:column;gap:7px;margin-bottom:7px;}
+.subtask-form-item{display:flex;gap:6px;align-items:center;}
+.subtask-form-input{flex:1;font-family:inherit;font-size:.9rem;padding:9px 12px;border:2px solid var(--pink-light);border-radius:12px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;min-width:0;}
+.subtask-form-input:focus{border-color:var(--pink);}
+.subtask-form-input::placeholder{color:var(--text-soft);}
+.subtask-form-remove{width:30px;height:30px;flex-shrink:0;border:none;border-radius:50%;background:var(--pink-light);color:var(--pink-dark);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.add-subtask-btn{width:100%;padding:9px;border:2px dashed var(--lavender);border-radius:12px;background:none;color:var(--text-soft);font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
+.add-subtask-btn:hover{border-color:var(--pink);color:var(--pink-dark);background:var(--pink-light);}
+.btn-primary{font-size:1rem;font-weight:800;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;cursor:pointer;box-shadow:0 6px 16px var(--shadow);transition:transform .1s,box-shadow .1s;}
+.btn-primary:active{transform:scale(.97);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ===== Bottom Sheets ===== */
+.sheet-overlay{position:fixed;inset:0;z-index:800;background:rgba(20,10,26,.52);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;}
+.sheet-overlay.open{opacity:1;pointer-events:all;}
+.bottom-sheet{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:0 18px 38px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .32s cubic-bezier(.3,1,.5,1);box-shadow:0 -8px 32px rgba(20,10,26,.18);}
+.sheet-overlay.open .bottom-sheet{transform:translateY(0);}
+.sheet-handle{width:44px;height:5px;background:var(--pink-light);border-radius:999px;margin:14px auto 20px;}
+.sheet-title{margin:0 0 18px;font-size:1rem;font-weight:800;color:var(--pink-dark);}
+.sheet-buttons{display:flex;gap:10px;margin-top:16px;}
+.sheet-cancel-btn{flex:1;padding:13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--card);color:var(--text);font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;transition:background .15s;}
+.sheet-cancel-btn:active{background:var(--pink-light);}
+
+/* ===== Notification Settings ===== */
+.notif-section{margin-bottom:6px;}
+.notif-section-title{font-size:.9rem;font-weight:800;color:var(--pink-dark);margin-bottom:6px;}
+.notif-desc{font-size:.8rem;color:var(--text-soft);line-height:1.5;margin:0 0 10px;}
+.notif-perm-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:700;margin-bottom:10px;}
+.notif-perm-badge.granted{background:#d4edda;color:#155724;}
+.notif-perm-badge.denied{background:#f8d7da;color:#721c24;}
+.notif-perm-badge.default{background:var(--lavender);color:var(--text);}
+.notif-perm-badge.unavailable{background:var(--pink-light);color:var(--pink-dark);}
+.notif-action-btn{width:100%;padding:11px;border:2px solid var(--pink);border-radius:14px;background:var(--pink-light);color:var(--pink-dark);font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .15s;margin-bottom:4px;}
+.notif-action-btn:active{background:var(--pink);color:white;}
+.notif-action-btn.secondary{background:var(--card);border-color:var(--lavender);color:var(--text);}
+
+/* ===== Theme sheet ===== */
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.theme-swatch{border:2px solid var(--pink-light);border-radius:16px;padding:10px 6px;background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:border-color .15s,transform .1s;}
+.theme-swatch:active{transform:scale(.95);}
+.theme-swatch.active{border-color:var(--pink-dark);box-shadow:0 0 0 2px var(--pink-light);}
+.theme-swatch-dots{display:flex;gap:3px;}
+.theme-swatch-dot{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);}
+.theme-swatch-label{font-size:.72rem;font-weight:700;color:var(--text);}
+.custom-theme-row{display:flex;align-items:center;gap:12px;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:12px;}
+.custom-theme-row input[type="color"]{width:44px;height:44px;border:none;border-radius:50%;padding:0;cursor:pointer;background:none;}
+.custom-theme-row input[type="color"]::-webkit-color-swatch-wrapper{padding:0;border-radius:50%;}
+.custom-theme-row input[type="color"]::-webkit-color-swatch{border:2px solid var(--card);border-radius:50%;}
+.custom-theme-text{flex:1;font-size:.82rem;color:var(--text-soft);line-height:1.4;}
+.dark-mode-row{display:flex;align-items:center;justify-content:space-between;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:12px 14px;margin-top:12px;}
+.dark-mode-row span{font-size:.86rem;font-weight:700;}
+.switch{position:relative;width:46px;height:26px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-track{position:absolute;inset:0;background:var(--pink-light);border-radius:999px;cursor:pointer;transition:background .2s;}
+.switch-track::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.switch input:checked + .switch-track{background:var(--pink);}
+.switch input:checked + .switch-track::before{transform:translateX(20px);}
+.switch input:focus-visible + .switch-track{outline:2px solid var(--pink-dark);outline-offset:2px;}
+
+/* ===== Lightbox ===== */
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(10,5,14,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .22s;}
+.lightbox.open{opacity:1;pointer-events:all;}
+.lightbox-panel{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(90vw,460px);width:100%;transform:scale(.9);transition:transform .25s cubic-bezier(.3,1.3,.5,1);}
+.lightbox.open .lightbox-panel{transform:scale(1);}
+.lightbox-img{max-width:100%;max-height:62vh;object-fit:contain;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.7);}
+.lightbox-caption{color:rgba(255,255,255,.92);font-size:.98rem;font-weight:700;text-align:center;}
+.lightbox-close{padding:11px 32px;border:2px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(255,255,255,.1);color:white;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .15s;}
+
+/* ===== Toast & Sparkle ===== */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(20,10,26,.9);color:white;padding:10px 20px;border-radius:999px;font-size:.82rem;font-weight:600;z-index:10000;pointer-events:none;opacity:0;transition:opacity .22s;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.sparkle{position:absolute;left:16px;top:50%;font-size:1rem;pointer-events:none;animation:sparkle-fly .5s ease-out forwards;}
+@keyframes sparkle-fly{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0deg);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(90deg);}}
+:focus-visible{outline:2px solid var(--pink-dark);outline-offset:2px;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>ぽちたす</h1>
+    <p>今日もコツコツがんばろう</p>
+    <button class="header-icon-btn" id="themeHeaderBtn" aria-label="テーマ設定" aria-haspopup="dialog">🎨</button>
+    <button class="header-icon-btn" id="notifHeaderBtn" aria-label="通知設定" aria-haspopup="dialog">🔔</button>
+  </header>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span class="label">📋 全体の進み具合</span>
+      <span id="progressCount">0 / 0 完了</span>
+    </div>
+    <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-mood" id="progressMood">📝 タスクを追加してみよう！</div>
+  </div>
+
+  <div class="controls-card">
+    <div class="search-wrap">
+      <span class="search-ico" aria-hidden="true">🔍</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="タスクを検索..." aria-label="タスクを検索">
+      <button class="search-clear" id="searchClear" style="display:none" aria-label="検索をクリア">✕</button>
+    </div>
+    <div class="tag-filters" id="tagFilters" role="tablist" aria-label="タグで絞り込み"></div>
+    <div class="action-row">
+      <button class="sort-btn" id="sortBtn" aria-pressed="false">↕ 重要度順</button>
+      <button class="bulk-delete-btn" id="bulkDeleteBtn" style="display:none">🗑️ 完了を削除</button>
+    </div>
+  </div>
+
+  <div class="filter-info" id="filterInfo" style="display:none" aria-live="polite"></div>
+  <div class="task-list" id="taskList" aria-live="polite"></div>
+  <div class="empty-state" id="emptyState">
+    <span class="big">🌱</span>
+    まだタスクがありません。<br>下のボタンから追加してみましょう。
+  </div>
+
+  <button class="add-toggle" id="addToggle" aria-expanded="false" aria-controls="addCard">✨ タスクを追加する ✨</button>
+  <div class="add-card" id="addCard">
+    <h2>📝 新しいタスク</h2>
+    <div class="field">
+      <label for="subjectInput">課題名</label>
+      <input type="text" id="subjectInput" placeholder="例: 数学のプリント" maxlength="200">
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="deadlineInput">📅 期限</label><input type="date" id="deadlineInput"></div>
+      <div class="field">
+        <label id="starPickerLabel">⭐ 重要度</label>
+        <div class="star-picker" id="starPicker" role="radiogroup" aria-labelledby="starPickerLabel">
+          <button type="button" role="radio" aria-label="重要度1"></button><button type="button" role="radio" aria-label="重要度2"></button><button type="button" role="radio" aria-label="重要度3"></button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label for="tagInput">🏷️ タグ</label>
+      <input type="text" id="tagInput" list="tagOptions" placeholder="学校・個人・部活など" maxlength="30">
+      <datalist id="tagOptions"></datalist>
+    </div>
+    <div class="field">
+      <label id="subtaskFormLabel">📋 サブタスク（任意）</label>
+      <div class="subtask-form-list" id="subtaskFormList"></div>
+      <button type="button" class="add-subtask-btn" id="addSubtaskBtn">＋ ステップを追加</button>
+    </div>
+    <div class="field">
+      <label>📷 写真（任意）</label>
+      <input type="file" id="photoInput" accept="image/*" style="display:none">
+      <div class="photo-upload-area empty" id="photoUploadArea" role="button" tabindex="0" aria-label="写真を選ぶ">
+        <div class="photo-placeholder" id="photoPlaceholder"><span class="ph-ico" aria-hidden="true">📷</span><span>タップして写真を選ぶ</span><span class="ph-hint">カメラ・ライブラリから選べます</span></div>
+        <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none"><img class="photo-preview-img" id="photoPreviewImg" alt="選択した写真のプレビュー"><button type="button" class="photo-clear-btn" id="photoClearBtn" aria-label="写真を削除">✕</button></div>
+      </div>
+    </div>
+    <button class="btn-primary" id="addBtn">✨ 追加する ✨</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="editOverlay">
+  <div class="bottom-sheet" id="editSheet" role="dialog" aria-modal="true" aria-labelledby="editSheetTitle">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="editSheetTitle">✏️ タスクを編集</h2>
+    <div class="field"><label for="editSubject">課題名</label><input type="text" id="editSubject" placeholder="課題名" maxlength="200"></div>
+    <div class="field-row">
+      <div class="field"><label for="editDeadline">📅 期限</label><input type="date" id="editDeadline"></div>
+      <div class="field">
+        <label id="editStarPickerLabel">⭐ 重要度</label>
+        <div class="star-picker" id="editStarPicker" role="radiogroup" aria-labelledby="editStarPickerLabel">
+          <button type="button" role="radio" aria-label="重要度1"></button><button type="button" role="radio" aria-label="重要度2"></button><button type="button" role="radio" aria-label="重要度3"></button>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label for="editTag">🏷️ タグ</label><input type="text" id="editTag" list="tagOptions" placeholder="学校・個人・部活など" maxlength="30"></div>
+    <div class="field">
+      <label>📋 サブタスク</label>
+      <div class="subtask-form-list" id="editSubtaskList"></div>
+      <button type="button" class="add-subtask-btn" id="editAddSubtaskBtn">＋ ステップを追加</button>
+    </div>
+    <div class="field">
+      <label>📷 写真</label>
+      <input type="file" id="editPhotoInput" accept="image/*" style="display:none">
+      <div class="photo-upload-area empty" id="editPhotoArea" role="button" tabindex="0" aria-label="写真を変更する">
+        <div class="photo-placeholder" id="editPhotoPlaceholder"><span class="ph-ico" aria-hidden="true">📷</span><span>写真を変更する</span></div>
+        <div class="photo-preview-wrap" id="editPhotoPreviewWrap" style="display:none"><img class="photo-preview-img" id="editPhotoPreviewImg" alt="選択した写真のプレビュー"><button type="button" class="photo-clear-btn" id="editPhotoClearBtn" aria-label="写真を削除">✕</button></div>
+      </div>
+    </div>
+    <div class="sheet-buttons">
+      <button class="sheet-cancel-btn" id="editCancelBtn">キャンセル</button>
+      <button class="btn-primary" id="editSaveBtn" style="flex:1.5">✅ 保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="notifOverlay">
+  <div class="bottom-sheet" id="notifSheet" role="dialog" aria-modal="true" aria-labelledby="notifSheetTitle">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="notifSheetTitle">🔔 通知設定</h2>
+    <div class="notif-section">
+      <div class="notif-section-title">📱 ブラウザ通知</div>
+      <p class="notif-desc">期限当日・前日に自動でお知らせします。このアプリを開いている間だけ動作します。</p>
+      <div id="notifPermStatus"></div>
+      <button class="notif-action-btn" id="notifPermBtn">🔔 通知を許可する</button>
+      <button class="notif-action-btn secondary" id="notifTestBrowserBtn">📬 テスト通知を表示</button>
+    </div>
+    <div class="sheet-buttons">
+      <button class="sheet-cancel-btn" id="notifCloseBtn" style="flex:1">とじる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="themeOverlay">
+  <div class="bottom-sheet" id="themeSheet" role="dialog" aria-modal="true" aria-labelledby="themeSheetTitle">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="themeSheetTitle">🎨 テーマを選ぶ</h2>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="custom-theme-row">
+      <input type="color" id="customColorInput" value="#FF9EBB" aria-label="カスタムのメインカラーを選ぶ">
+      <div class="custom-theme-text">好きな色を選んでオリジナルテーマを作れます</div>
+    </div>
+    <div class="dark-mode-row">
+      <span>🌙 ダークモード</span>
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle">
+        <span class="switch-track" aria-hidden="true"></span>
+      </label>
+    </div>
+    <div class="sheet-buttons">
+      <button class="sheet-cancel-btn" id="themeCloseBtn" style="flex:1">とじる</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-panel">
+    <img class="lightbox-img" id="lightboxImg" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+    <button class="lightbox-close" id="lightboxClose">✕ とじる</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+
+// ===== Web Audio API（「ぽちっ」と鳴らす軽量サウンド） =====
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  return audioCtx;
+}
+function playPochiSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  try{
+    if(ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+    osc.start(); osc.stop(ctx.currentTime + 0.08);
+  }catch(e){ /* 音が出せない環境でも致命的にしない */ }
+}
+
+const STORAGE_KEY = 'kawaii_tasks_v3';
+const THEME_KEY = 'kawaii_theme_v1';
+const TAG_ICONS = {'学校':'🏫','個人':'🏠','部活':'⚽'};
+const DEFAULT_TAGS = ['学校','個人','部活'];
+const NOTIF_ICON = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">✨</text></svg>';
+
+// ===== テーマ定義 =====
+// 各テーマは:root の CSS 変数一式。ここに新しいテーマを足すだけで選択肢が増える。
+const THEMES = {
+  sakura:{ label:'さくら', dots:['#FF9EBB','#E4D7F5','#A8E6CF'],
+    vars:{'--bg-a':'#FFF4F8','--bg-b':'#F3E8FB','--card':'#FFFFFF','--pink':'#FF9EBB','--pink-dark':'#FF7FA3','--pink-light':'#FFE3EC','--mint':'#A8E6CF','--lavender':'#E4D7F5','--text':'#6E5A6E','--text-soft':'#BFA9C9','--done-bg':'#F5EAF8','--shadow':'rgba(255,140,175,.22)','--field-bg':'#FFFBFD'} },
+  mint:{ label:'ミント', dots:['#5FCBA6','#CDEFE3','#FFD9A0'],
+    vars:{'--bg-a':'#F1FBF6','--bg-b':'#E4F6EE','--card':'#FFFFFF','--pink':'#5FCBA6','--pink-dark':'#3AA783','--pink-light':'#D3F2E6','--mint':'#FFD9A0','--lavender':'#C9E9DD','--text':'#2F4F45','--text-soft':'#8FB9A9','--done-bg':'#E9F7F1','--shadow':'rgba(95,203,166,.22)','--field-bg':'#F7FDFB'} },
+  lavender:{ label:'ラベンダー', dots:['#9C87E0','#E4D7F5','#FFC1DC'],
+    vars:{'--bg-a':'#F6F2FD','--bg-b':'#EDE4FB','--card':'#FFFFFF','--pink':'#9C87E0','--pink-dark':'#7A63C9','--pink-light':'#E5DBFA','--mint':'#B9E5D8','--lavender':'#FFC1DC','--text':'#4E3F6E','--text-soft':'#AFA0CE','--done-bg':'#F1EBFB','--shadow':'rgba(156,135,224,.22)','--field-bg':'#FBF9FE'} },
+  sky:{ label:'そら', dots:['#5BB4E8','#D2ECFB','#FFE5A8'],
+    vars:{'--bg-a':'#F1F9FE','--bg-b':'#E3F2FC','--card':'#FFFFFF','--pink':'#5BB4E8','--pink-dark':'#3690C7','--pink-light':'#D6EEFC','--mint':'#B9E4D0','--lavender':'#FFE5A8','--text':'#2E4A5E','--text-soft':'#93B7CB','--done-bg':'#E9F5FC','--shadow':'rgba(91,180,232,.22)','--field-bg':'#F6FBFE'} },
+  sunset:{ label:'ゆうやけ', dots:['#FF9166','#FFD8A8','#FFC1CE'],
+    vars:{'--bg-a':'#FFF6EF','--bg-b':'#FFEBDD','--card':'#FFFFFF','--pink':'#FF9166','--pink-dark':'#F06B3B','--pink-light':'#FFE0CC','--mint':'#FFD8A8','--lavender':'#FFC1CE','--text':'#6E4B3D','--text-soft':'#D0A88F','--done-bg':'#FCEEE2','--shadow':'rgba(255,145,102,.24)','--field-bg':'#FFFBF7'} },
+  lemon:{ label:'れもん', dots:['#E8C13A','#FFF3C4','#B7E4C7'],
+    vars:{'--bg-a':'#FFFDF2','--bg-b':'#FFF7DE','--card':'#FFFFFF','--pink':'#E8C13A','--pink-dark':'#C7A11F','--pink-light':'#FFF3C4','--mint':'#B7E4C7','--lavender':'#FFE7A3','--text':'#5E5433','--text-soft':'#C9BB8A','--done-bg':'#FBF5DC','--shadow':'rgba(232,193,58,.24)','--field-bg':'#FFFEF7'} }
+};
+const DARK_OVERRIDES = {
+  '--bg-a':'#1C1620','--bg-b':'#241A2C','--card':'#2A2130','--field-bg':'#33283C',
+  '--text':'#EFE6F5','--text-soft':'#9A8AA8','--done-bg':'#241C2A','--shadow':'rgba(0,0,0,.4)'
+};
+
+// ===== State =====
+let tasks = [], currentImportance = 1, currentPhotoData = null, currentSubtasks = [];
+let searchQuery = '', activeTag = 'all', sortByImportance = false;
+const expandedCards = new Set();
+let confirmingBulkDelete = false, confirmTimer = null;
+let sortable = null;
+let editTaskId = null, editImportance = 1, editPhotoData = null, editSubtasks = [];
+const hasCloud = typeof window.storage !== 'undefined';
+
+// ===== Helpers =====
+function genId(){
+  if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+}
+function formatDeadline(iso){
+  if(!iso) return ''; const p = iso.split('-'); if(p.length !== 3) return iso;
+  return parseInt(p[1],10) + '月' + parseInt(p[2],10) + '日';
+}
+function escapeAttr(str){ return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ===== Storage（保存: クラウド優先 + ローカル保険。読み込みも同様に両対応） =====
+async function loadTasks(){
+  if(hasCloud){
+    try{ const r = await window.storage.get('tasks'); if(r && r.value) return JSON.parse(r.value); }catch(e){ /* クラウド未初期化 or キー無し */ }
+  }
+  try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) return JSON.parse(raw); }catch(e){ /* localStorage無効 */ }
+  return [];
+}
+async function saveTasks(){
+  const json = JSON.stringify(tasks);
+  let ok = true;
+  if(hasCloud){
+    try{ await window.storage.set('tasks', json); }catch(e){ ok = false; }
+  }
+  try{ localStorage.setItem(STORAGE_KEY, json); }catch(e){ ok = false; }
+  if(!ok) showToast('⚠️ 保存に失敗しました。写真を減らすと改善する場合があります');
+}
+
+// ===== テーマ Storage =====
+async function loadThemeConfig(){
+  let raw = null;
+  if(hasCloud){
+    try{ const r = await window.storage.get('theme'); if(r && r.value) raw = r.value; }catch(e){}
+  }
+  if(!raw){
+    try{ raw = localStorage.getItem(THEME_KEY); }catch(e){}
+  }
+  if(!raw) return { theme:'sakura', custom:null, dark:false };
+  try{ return JSON.parse(raw); }catch(e){ return { theme:'sakura', custom:null, dark:false }; }
+}
+async function saveThemeConfig(cfg){
+  const json = JSON.stringify(cfg);
+  if(hasCloud){ try{ await window.storage.set('theme', json); }catch(e){} }
+  try{ localStorage.setItem(THEME_KEY, json); }catch(e){}
+}
+
+// ===== Toast =====
+let toastTimer = null;
+function showToast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== 画像圧縮（大きな写真でストレージを圧迫しないように） =====
+function compressImage(file){
+  return new Promise((resolve, reject) => {
+    if(!file.type || !file.type.startsWith('image/')){ reject(new Error('画像ファイルではありません')); return; }
+    const MAX = 700, reader = new FileReader();
+    reader.onerror = () => reject(new Error('読み込み失敗'));
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('画像エラー'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > MAX || h > MAX){
+          if(w > h){ h = Math.round(h * MAX / w); w = MAX; } else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx2d = canvas.getContext('2d');
+        if(!ctx2d){ reject(new Error('canvas未対応')); return; }
+        ctx2d.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', .70));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== 写真アップロードUI共通処理 =====
+function bindPhotoArea(areaId, inputId, placeholderId, previewWrapId, previewImgId, clearBtnId, getVal, setVal){
+  const area = document.getElementById(areaId);
+  const input = document.getElementById(inputId);
+  area.addEventListener('click', e => { if(e.target.id === clearBtnId) return; if(!getVal()) input.click(); });
+  area.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && !getVal()){ e.preventDefault(); input.click(); } });
+  input.addEventListener('change', async e => {
+    const file = e.target.files[0]; if(!file) return;
+    try{
+      const data = await compressImage(file);
+      setVal(data);
+      document.getElementById(previewImgId).src = data;
+      document.getElementById(placeholderId).style.display = 'none';
+      document.getElementById(previewWrapId).style.display = '';
+      area.classList.remove('empty');
+    }catch(err){ showToast('⚠️ 写真を読み込めませんでした'); }
+  });
+  document.getElementById(clearBtnId).addEventListener('click', e => {
+    e.stopPropagation(); setVal(null); input.value = '';
+    document.getElementById(previewImgId).src = '';
+    document.getElementById(placeholderId).style.display = '';
+    document.getElementById(previewWrapId).style.display = 'none';
+    area.classList.add('empty');
+  });
+}
+
+// ===== Lightbox =====
+function openLightbox(src, caption){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxCaption').textContent = caption || '';
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ===== Filter / Sort =====
+function getFiltered(){
+  let result = tasks.map((t, i) => ({...t, _idx: i}));
+  if(searchQuery.trim()){
+    const q = searchQuery.toLowerCase();
+    result = result.filter(t => t.subject.toLowerCase().includes(q) || (t.subtasks && t.subtasks.some(s => s.text.toLowerCase().includes(q))));
+  }
+  if(activeTag !== 'all') result = result.filter(t => t.tag === activeTag);
+  if(sortByImportance) result.sort((a, b) => { if(a.done !== b.done) return a.done ? 1 : -1; return b.importance - a.importance; });
+  return result;
+}
+
+// ===== Tag UI =====
+function updateTagFilters(){
+  const c = document.getElementById('tagFilters'); c.innerHTML = '';
+  const make = (label, tag) => {
+    const btn = document.createElement('button');
+    btn.className = 'tag-filter-btn' + (activeTag === tag ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', String(activeTag === tag));
+    btn.textContent = label;
+    btn.addEventListener('click', () => { activeTag = tag; updateTagFilters(); renderTasks(); });
+    c.appendChild(btn);
+  };
+  make('すべて', 'all');
+  Array.from(new Set(tasks.map(t => t.tag).filter(Boolean))).forEach(tag => make((TAG_ICONS[tag] || '🏷️') + ' ' + tag, tag));
+}
+function updateTagDatalist(){
+  const list = document.getElementById('tagOptions'); list.innerHTML = '';
+  Array.from(new Set([...DEFAULT_TAGS, ...tasks.map(t => t.tag).filter(Boolean)])).forEach(tag => {
+    const opt = document.createElement('option'); opt.value = tag; list.appendChild(opt);
+  });
+}
+
+// ===== Bulk delete =====
+function updateBulkDeleteBtn(){
+  const count = tasks.filter(t => t.done).length;
+  const btn = document.getElementById('bulkDeleteBtn');
+  if(count > 0){
+    btn.style.display = '';
+    if(!confirmingBulkDelete){ btn.textContent = '🗑️ 完了を削除 (' + count + '件)'; btn.classList.remove('confirming'); }
+  } else {
+    btn.style.display = 'none'; confirmingBulkDelete = false; clearTimeout(confirmTimer);
+  }
+}
+function triggerBulkDelete(){
+  const count = tasks.filter(t => t.done).length; if(count === 0) return;
+  if(!confirmingBulkDelete){
+    confirmingBulkDelete = true;
+    document.getElementById('bulkDeleteBtn').textContent = '⚠️ もう一度タップで削除！';
+    document.getElementById('bulkDeleteBtn').classList.add('confirming');
+    clearTimeout(confirmTimer);
+    confirmTimer = setTimeout(() => { confirmingBulkDelete = false; updateBulkDeleteBtn(); }, 3000);
+    return;
+  }
+  clearTimeout(confirmTimer); confirmingBulkDelete = false;
+  tasks = tasks.filter(t => !t.done);
+  saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist();
+  showToast('✨ 完了タスクを削除しました');
+}
+
+// ===== Progress =====
+function updateProgress(){
+  const total = tasks.length, done = tasks.filter(t => t.done).length;
+  document.getElementById('progressCount').textContent = done + ' / ' + total + ' 完了';
+  const pct = total === 0 ? 0 : Math.round(done / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressTrack').setAttribute('aria-valuenow', String(pct));
+  const mood = document.getElementById('progressMood');
+  if(total === 0) mood.textContent = '📝 タスクを追加してみよう！';
+  else if(done === 0) mood.textContent = '🌱 さあ、はじめよう！';
+  else if(done === total) mood.textContent = '🎉 パーフェクト！えらい！';
+  else if(pct >= 50) mood.textContent = '🔥 もうすこし！ファイト！';
+  else mood.textContent = '📖 いいペースだよ！';
+}
+
+// ===== Sparkles =====
+function spawnSparkles(card){
+  for(let i = 0; i < 5; i++){
+    const s = document.createElement('span');
+    s.className = 'sparkle'; s.textContent = ['✨', '⭐', '💖'][i % 3];
+    const angle = (Math.random() * Math.PI) - Math.PI / 2, dist = 30 + Math.random() * 20;
+    s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    s.style.setProperty('--dy', (-Math.abs(Math.sin(angle) * dist) - 10) + 'px');
+    card.appendChild(s); setTimeout(() => s.remove(), 700);
+  }
+}
+
+// ===== Subtask helpers =====
+function toggleSubtask(taskId, si){
+  const ti = tasks.findIndex(t => t.id === taskId); if(ti === -1) return;
+  tasks[ti].subtasks[si].done = !tasks[ti].subtasks[si].done;
+  if(tasks[ti].subtasks[si].done) playPochiSound();
+  saveTasks(); renderTasks();
+}
+function deleteSubtask(taskId, si){
+  const ti = tasks.findIndex(t => t.id === taskId); if(ti === -1) return;
+  tasks[ti].subtasks.splice(si, 1); saveTasks(); renderTasks();
+}
+function addSubtaskInline(taskId, text){
+  if(!text.trim()) return;
+  const ti = tasks.findIndex(t => t.id === taskId); if(ti === -1) return;
+  if(!tasks[ti].subtasks) tasks[ti].subtasks = [];
+  tasks[ti].subtasks.push({text: text.trim(), done: false});
+  saveTasks(); renderTasks();
+}
+
+// ===== Drag & Drop（並び替えは絞り込み無し・複数件のときだけ有効） =====
+function initSortable(){
+  if(typeof Sortable === 'undefined') return;
+  if(sortable){ sortable.destroy(); sortable = null; }
+  const canDrag = !sortByImportance && !searchQuery.trim() && activeTag === 'all' && tasks.length > 1;
+  document.querySelectorAll('.drag-handle').forEach(h => { h.style.visibility = canDrag ? 'visible' : 'hidden'; });
+  if(!canDrag) return;
+  sortable = new Sortable(document.getElementById('taskList'), {
+    animation: 200, handle: '.drag-handle', ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    forceFallback: true, fallbackTolerance: 3,
+    onEnd(evt){
+      if(evt.oldIndex === evt.newIndex) return;
+      const [moved] = tasks.splice(evt.oldIndex, 1);
+      tasks.splice(evt.newIndex, 0, moved);
+      saveTasks(); updateProgress(); updateBulkDeleteBtn();
+    }
+  });
+}
+
+// ===== Edit Sheet =====
+function openEditSheet(taskId){
+  const ti = tasks.findIndex(t => t.id === taskId); if(ti === -1) return;
+  const t = tasks[ti];
+  editTaskId = taskId;
+  document.getElementById('editSubject').value = t.subject || '';
+  document.getElementById('editDeadline').value = t.deadline || '';
+  document.getElementById('editTag').value = t.tag || '';
+
+  editImportance = t.importance || 1;
+  document.querySelectorAll('#editStarPicker button').forEach((b, i) => {
+    b.classList.toggle('active', i < editImportance);
+    b.setAttribute('aria-checked', String(i < editImportance));
+  });
+
+  editSubtasks = (t.subtasks || []).map(s => ({...s}));
+  renderEditSubtaskList();
+
+  editPhotoData = t.photo || null;
+  if(editPhotoData){
+    document.getElementById('editPhotoPreviewImg').src = editPhotoData;
+    document.getElementById('editPhotoPlaceholder').style.display = 'none';
+    document.getElementById('editPhotoPreviewWrap').style.display = '';
+    document.getElementById('editPhotoArea').classList.remove('empty');
+  } else {
+    document.getElementById('editPhotoPreviewImg').src = '';
+    document.getElementById('editPhotoPlaceholder').style.display = '';
+    document.getElementById('editPhotoPreviewWrap').style.display = 'none';
+    document.getElementById('editPhotoArea').classList.add('empty');
+  }
+  document.getElementById('editPhotoInput').value = '';
+
+  document.getElementById('editOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('editSubject').focus(), 350);
+}
+function closeEditSheet(){
+  document.getElementById('editOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  editTaskId = null;
+}
+function saveEdit(){
+  const sub = document.getElementById('editSubject').value.trim();
+  if(!sub){ document.getElementById('editSubject').focus(); showToast('⚠️ 課題名を入力してください'); return; }
+  const ti = tasks.findIndex(t => t.id === editTaskId); if(ti === -1){ closeEditSheet(); return; }
+  tasks[ti] = {
+    ...tasks[ti],
+    subject: sub,
+    deadline: document.getElementById('editDeadline').value,
+    importance: editImportance,
+    tag: document.getElementById('editTag').value.trim(),
+    photo: editPhotoData,
+    subtasks: editSubtasks.filter(s => s.text.trim()).map(s => ({text: s.text.trim(), done: s.done}))
+  };
+  saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist();
+  closeEditSheet(); showToast('✅ 更新しました');
+}
+function renderEditSubtaskList(){
+  const list = document.getElementById('editSubtaskList'); list.innerHTML = '';
+  editSubtasks.forEach((s, si) => {
+    const row = document.createElement('div'); row.className = 'subtask-form-item';
+    const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'subtask-form-input';
+    inp.value = s.text; inp.placeholder = 'ステップ ' + (si + 1); inp.maxLength = 200;
+    inp.addEventListener('input', () => { editSubtasks[si].text = inp.value; });
+    const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'subtask-form-remove';
+    rm.textContent = '✕'; rm.setAttribute('aria-label', 'ステップ' + (si + 1) + 'を削除');
+    rm.addEventListener('click', () => { editSubtasks.splice(si, 1); renderEditSubtaskList(); });
+    row.appendChild(inp); row.appendChild(rm); list.appendChild(row);
+  });
+}
+
+// ===== Notification（ブラウザ通知のみ） =====
+function updateNotifPermStatus(){
+  const status = document.getElementById('notifPermStatus');
+  const btn = document.getElementById('notifPermBtn');
+  const perm = typeof Notification !== 'undefined' ? Notification.permission : 'unavailable';
+  if(perm === 'granted'){
+    status.innerHTML = '<span class="notif-perm-badge granted">✅ 通知が許可されています</span>';
+    btn.style.display = 'none';
+  } else if(perm === 'denied'){
+    status.innerHTML = '<span class="notif-perm-badge denied">🚫 通知がブロックされています</span><p class="notif-desc" style="margin-top:6px">ブラウザの設定から通知を許可してください。</p>';
+    btn.style.display = 'none';
+  } else if(perm === 'unavailable'){
+    status.innerHTML = '<span class="notif-perm-badge unavailable">⬜ このブラウザは通知に対応していません</span>';
+    btn.style.display = 'none';
+  } else {
+    status.innerHTML = '<span class="notif-perm-badge default">⬜ 通知は未設定です</span>';
+    btn.style.display = '';
+  }
+  document.getElementById('notifHeaderBtn').classList.toggle('active', perm === 'granted');
+}
+async function requestBrowserNotif(){
+  if(typeof Notification === 'undefined'){ showToast('⚠️ このブラウザは通知に対応していません'); return; }
+  try{
+    const perm = await Notification.requestPermission();
+    updateNotifPermStatus();
+    if(perm === 'granted') showToast('✅ 通知が有効になりました！');
+    else showToast('⚠️ 通知が許可されませんでした');
+  }catch(e){ showToast('⚠️ 通知の許可を取得できませんでした'); }
+}
+function sendBrowserNotif(title, body){
+  if(typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  try{ new Notification(title, {body, icon: NOTIF_ICON}); }catch(e){ /* 環境によりNotification生成不可 */ }
+}
+function checkDeadlines(){
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const urgent = [];
+  tasks.forEach(t => {
+    if(t.done || !t.deadline) return;
+    const dl = new Date(t.deadline + 'T00:00:00');
+    const diff = Math.round((dl - now) / (1000 * 60 * 60 * 24));
+    if(diff < 0) urgent.push({t, label: '⚠️ 期限切れ！'});
+    else if(diff === 0) urgent.push({t, label: '🚨 今日が期限！'});
+    else if(diff === 1) urgent.push({t, label: '⏰ 明日が期限'});
+  });
+  if(urgent.length === 0) return;
+  const body = urgent.map(u => u.label + ' 「' + u.t.subject + '」').join('\n');
+  const title = urgent.length === 1 ? urgent[0].label + ' ' + urgent[0].t.subject : '期限が近いタスクが' + urgent.length + '件あります';
+  sendBrowserNotif(title, body);
+}
+
+// ===== テーマ適用 =====
+let currentThemeConfig = { theme: 'sakura', custom: null, dark: false };
+
+function hexToRgb(hex){
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : { r: 255, g: 158, b: 187 };
+}
+function rgbToHex(r, g, b){
+  return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+function mixWithWhite(hex, amount){
+  const {r, g, b} = hexToRgb(hex);
+  return rgbToHex(r + (255 - r) * amount, g + (255 - g) * amount, b + (255 - b) * amount);
+}
+function mixWithBlack(hex, amount){
+  const {r, g, b} = hexToRgb(hex);
+  return rgbToHex(r * (1 - amount), g * (1 - amount), b * (1 - amount));
+}
+// カスタムカラー1色から、アプリ全体で使う一式のパレットを自動生成する
+function deriveCustomPalette(hex){
+  return {
+    '--bg-a': mixWithWhite(hex, .92), '--bg-b': mixWithWhite(hex, .84), '--card': '#FFFFFF',
+    '--pink': hex, '--pink-dark': mixWithBlack(hex, .18), '--pink-light': mixWithWhite(hex, .82),
+    '--mint': mixWithWhite(hex, .55), '--lavender': mixWithWhite(hex, .68),
+    '--text': mixWithBlack(hex, .62), '--text-soft': mixWithWhite(hex, .35),
+    '--done-bg': mixWithWhite(hex, .88), '--shadow': 'rgba(0,0,0,.14)', '--field-bg': mixWithWhite(hex, .96)
+  };
+}
+function applyThemeVars(vars){
+  const root = document.documentElement;
+  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+  const meta = document.getElementById('themeColorMeta');
+  if(meta && vars['--pink']) meta.setAttribute('content', vars['--pink']);
+}
+function applyTheme(cfg){
+  currentThemeConfig = cfg;
+  const base = cfg.theme === 'custom' && cfg.custom ? deriveCustomPalette(cfg.custom) : (THEMES[cfg.theme] || THEMES.sakura).vars;
+  const vars = cfg.dark ? {...base, ...DARK_OVERRIDES} : base;
+  applyThemeVars(vars);
+  document.body.classList.toggle('dark', !!cfg.dark);
+}
+function renderThemeGrid(){
+  const grid = document.getElementById('themeGrid'); grid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, def]) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-swatch' + (currentThemeConfig.theme === key ? ' active' : '');
+    btn.setAttribute('aria-pressed', String(currentThemeConfig.theme === key));
+    const dots = document.createElement('div'); dots.className = 'theme-swatch-dots';
+    def.dots.forEach(c => { const d = document.createElement('span'); d.className = 'theme-swatch-dot'; d.style.background = c; dots.appendChild(d); });
+    const label = document.createElement('span'); label.className = 'theme-swatch-label'; label.textContent = def.label;
+    btn.appendChild(dots); btn.appendChild(label);
+    btn.addEventListener('click', () => {
+      const cfg = {...currentThemeConfig, theme: key};
+      applyTheme(cfg); saveThemeConfig(cfg); renderThemeGrid();
+      showToast('🎨 「' + def.label + '」にきりかえました');
+    });
+    grid.appendChild(btn);
+  });
+}
+
+// ===== Render Tasks =====
+function renderTasks(){
+  const container = document.getElementById('taskList');
+  const empty = document.getElementById('emptyState');
+  const filterInfo = document.getElementById('filterInfo');
+  container.innerHTML = '';
+
+  const filtered = getFiltered();
+  const isFiltering = searchQuery.trim() || activeTag !== 'all';
+  if(isFiltering && filtered.length !== tasks.length){
+    filterInfo.textContent = tasks.length + '件中 ' + filtered.length + '件を表示';
+    filterInfo.style.display = '';
+  } else {
+    filterInfo.style.display = 'none';
+  }
+
+  if(filtered.length === 0){
+    empty.style.display = 'block';
+    if(tasks.length === 0) empty.innerHTML = '<span class="big">🌱</span>まだタスクがありません。<br>下のボタンから追加しましょう。';
+    else if(searchQuery.trim()) empty.innerHTML = '<span class="big">🔍</span>「' + escapeAttr(searchQuery) + '」に一致するタスクはありません。';
+    else empty.innerHTML = '<span class="big">🏷️</span>「' + escapeAttr(activeTag) + '」タグのタスクはありません。';
+    updateProgress(); updateBulkDeleteBtn(); initSortable(); return;
+  }
+  empty.style.display = 'none';
+  const canDrag = !sortByImportance && !searchQuery.trim() && activeTag === 'all' && tasks.length > 1;
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+
+  filtered.forEach(t => {
+    const i = t._idx;
+    const card = document.createElement('div');
+    card.className = 'task-card' + (t.done ? ' done' : '');
+
+    const mainRow = document.createElement('div'); mainRow.className = 'task-main-row';
+
+    const dh = document.createElement('div'); dh.className = 'drag-handle'; dh.textContent = '⠿';
+    dh.style.visibility = canDrag ? 'visible' : 'hidden';
+    dh.title = canDrag ? 'ドラッグで並び替え' : '並び替えは絞り込みOFF時のみ';
+
+    const checkBtn = document.createElement('button'); checkBtn.className = 'check-btn';
+    checkBtn.textContent = t.done ? '✓' : '';
+    checkBtn.setAttribute('aria-label', t.done ? '未完了にする: ' + t.subject : '完了にする: ' + t.subject);
+    checkBtn.addEventListener('click', () => toggleDone(i, card));
+
+    const info = document.createElement('div'); info.className = 'task-info';
+    const subEl = document.createElement('div'); subEl.className = 'task-subject'; subEl.textContent = t.subject;
+    info.appendChild(subEl);
+    const meta = document.createElement('div'); meta.className = 'task-meta';
+    if(t.deadline){
+      const d = document.createElement('span');
+      const dl = new Date(t.deadline + 'T00:00:00');
+      const overdue = !t.done && dl < now;
+      d.className = 'badge deadline' + (overdue ? ' overdue' : '');
+      d.textContent = (overdue ? '⚠️ ' : '📅 ') + formatDeadline(t.deadline);
+      meta.appendChild(d);
+    }
+    if(t.importance > 0){ const s = document.createElement('span'); s.className = 'badge stars'; s.textContent = '⭐'.repeat(t.importance); meta.appendChild(s); }
+    if(t.tag){ const g = document.createElement('span'); g.className = 'badge'; g.textContent = (TAG_ICONS[t.tag] || '🏷️') + ' ' + t.tag; meta.appendChild(g); }
+    if(meta.children.length) info.appendChild(meta);
+
+    const actions = document.createElement('div'); actions.className = 'task-actions';
+    const editBtn = document.createElement('button'); editBtn.className = 'edit-btn'; editBtn.textContent = '✏️';
+    editBtn.setAttribute('aria-label', '編集: ' + t.subject); editBtn.addEventListener('click', () => openEditSheet(t.id));
+    const delBtn = document.createElement('button'); delBtn.className = 'delete-btn'; delBtn.textContent = '🗑️';
+    delBtn.setAttribute('aria-label', '削除: ' + t.subject); delBtn.addEventListener('click', () => deleteTask(i));
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+
+    mainRow.appendChild(dh); mainRow.appendChild(checkBtn); mainRow.appendChild(info);
+    if(t.photo){
+      const th = document.createElement('img'); th.className = 'task-photo-thumb'; th.src = t.photo; th.alt = t.subject + 'の写真';
+      th.addEventListener('click', () => openLightbox(t.photo, t.subject));
+      mainRow.appendChild(th);
+    }
+    mainRow.appendChild(actions);
+    card.appendChild(mainRow);
+
+    if(t.subtasks && t.subtasks.length > 0){
+      const doneCount = t.subtasks.filter(s => s.done).length, total = t.subtasks.length;
+      const isExp = expandedCards.has(t.id);
+      const section = document.createElement('div'); section.className = 'subtask-section';
+      const tog = document.createElement('button'); tog.className = 'subtask-toggle';
+      tog.setAttribute('aria-expanded', String(isExp));
+      const arrEl = document.createElement('span'); arrEl.className = 'st-arrow'; arrEl.textContent = isExp ? '▲' : '▼';
+      const lblEl = document.createElement('span'); lblEl.className = 'st-label'; lblEl.textContent = '📋 ' + doneCount + '/' + total + ' ステップ完了';
+      const mb = document.createElement('div'); mb.className = 'subtask-mini-bar';
+      const mf = document.createElement('div'); mf.className = 'subtask-mini-fill'; mf.style.width = Math.round(doneCount / total * 100) + '%';
+      mb.appendChild(mf); tog.appendChild(arrEl); tog.appendChild(lblEl); tog.appendChild(mb);
+      tog.addEventListener('click', () => { if(expandedCards.has(t.id)) expandedCards.delete(t.id); else expandedCards.add(t.id); renderTasks(); });
+      section.appendChild(tog);
+      if(isExp){
+        const list = document.createElement('div'); list.className = 'subtask-list';
+        t.subtasks.forEach((s, si) => {
+          const item = document.createElement('label'); item.className = 'subtask-item' + (s.done ? ' done' : '');
+          const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = s.done;
+          cb.addEventListener('change', () => toggleSubtask(t.id, si));
+          const txt = document.createElement('span'); txt.className = 'subtask-text'; txt.textContent = s.text;
+          const del = document.createElement('button'); del.type = 'button'; del.className = 'subtask-del-btn'; del.textContent = '✕';
+          del.setAttribute('aria-label', 'ステップを削除: ' + s.text);
+          del.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); deleteSubtask(t.id, si); });
+          item.appendChild(cb); item.appendChild(txt); item.appendChild(del); list.appendChild(item);
+        });
+        const addRow = document.createElement('div'); addRow.className = 'subtask-add-row';
+        const addInp = document.createElement('input'); addInp.type = 'text'; addInp.className = 'subtask-add-input';
+        addInp.placeholder = '＋ ステップを追加...'; addInp.setAttribute('aria-label', 'ステップを追加');
+        const doAdd = () => { addSubtaskInline(t.id, addInp.value); addInp.value = ''; };
+        addInp.addEventListener('keydown', e => { if(e.key === 'Enter') doAdd(); });
+        const addBt = document.createElement('button'); addBt.type = 'button'; addBt.className = 'subtask-add-btn-inline'; addBt.textContent = '追加'; addBt.addEventListener('click', doAdd);
+        addRow.appendChild(addInp); addRow.appendChild(addBt); list.appendChild(addRow);
+        section.appendChild(list);
+      }
+      card.appendChild(section);
+    }
+    container.appendChild(card);
+  });
+  updateProgress(); updateBulkDeleteBtn();
+  initSortable();
+}
+
+// ===== Actions =====
+function toggleDone(i, card){
+  tasks[i].done = !tasks[i].done;
+  saveTasks();
+  if(tasks[i].done){ spawnSparkles(card); setTimeout(renderTasks, 700); }
+  else { renderTasks(); }
+}
+function deleteTask(i){ tasks.splice(i, 1); saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist(); }
+function setImportance(level){
+  currentImportance = level;
+  document.querySelectorAll('#starPicker button').forEach((b, idx) => {
+    b.classList.toggle('active', idx < level); b.setAttribute('aria-checked', String(idx < level));
+  });
+}
+function setEditImportance(level){
+  editImportance = level;
+  document.querySelectorAll('#editStarPicker button').forEach((b, idx) => {
+    b.classList.toggle('active', idx < level); b.setAttribute('aria-checked', String(idx < level));
+  });
+}
+
+// ===== Subtask form (Add) =====
+function renderSubtaskFormList(){
+  const list = document.getElementById('subtaskFormList'); list.innerHTML = '';
+  currentSubtasks.forEach((s, si) => {
+    const row = document.createElement('div'); row.className = 'subtask-form-item';
+    const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'subtask-form-input';
+    inp.value = s.text; inp.placeholder = 'ステップ ' + (si + 1); inp.maxLength = 200;
+    inp.addEventListener('input', () => { currentSubtasks[si].text = inp.value; });
+    inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault(); currentSubtasks.push({text: '', done: false}); renderSubtaskFormList();
+        setTimeout(() => { const ins = document.querySelectorAll('#subtaskFormList .subtask-form-input'); if(ins[si + 1]) ins[si + 1].focus(); }, 30);
+      }
+    });
+    const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'subtask-form-remove';
+    rm.textContent = '✕'; rm.setAttribute('aria-label', 'ステップ' + (si + 1) + 'を削除');
+    rm.addEventListener('click', () => { currentSubtasks.splice(si, 1); renderSubtaskFormList(); });
+    row.appendChild(inp); row.appendChild(rm); list.appendChild(row);
+  });
+}
+
+function addTask(){
+  const subEl = document.getElementById('subjectInput');
+  const sub = subEl.value.trim();
+  if(!sub){ subEl.focus(); showToast('⚠️ 課題名を入力してください'); return; }
+  tasks.push({
+    id: genId(), subject: sub, deadline: document.getElementById('deadlineInput').value,
+    importance: currentImportance, tag: document.getElementById('tagInput').value.trim(),
+    done: false, photo: currentPhotoData,
+    subtasks: currentSubtasks.filter(s => s.text.trim()).map(s => ({text: s.text.trim(), done: false}))
+  });
+  saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist();
+  subEl.value = ''; document.getElementById('deadlineInput').value = ''; document.getElementById('tagInput').value = '';
+  currentSubtasks = []; renderSubtaskFormList(); setImportance(1);
+  currentPhotoData = null; document.getElementById('photoInput').value = '';
+  document.getElementById('photoPreviewImg').src = '';
+  document.getElementById('photoPlaceholder').style.display = '';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('photoUploadArea').classList.add('empty');
+  subEl.focus();
+  showToast('✨ タスクを追加しました');
+}
+
+// ===== Init =====
+(async function init(){
+  // テーマは体感速度のため一番先に適用する
+  currentThemeConfig = await loadThemeConfig();
+  applyTheme(currentThemeConfig);
+
+  tasks = await loadTasks();
+
+  const addToggle = document.getElementById('addToggle');
+  const addCard = document.getElementById('addCard');
+  addToggle.addEventListener('click', () => {
+    const willOpen = !addCard.classList.contains('open');
+    addCard.classList.toggle('open');
+    addToggle.setAttribute('aria-expanded', String(willOpen));
+    addToggle.textContent = willOpen ? '▲ とじる' : '✨ タスクを追加する ✨';
+    if(willOpen) setTimeout(() => document.getElementById('subjectInput').focus(), 300);
+  });
+
+  document.querySelectorAll('#starPicker button').forEach((b, idx) => b.addEventListener('click', () => setImportance(idx + 1)));
+  setImportance(1);
+  document.querySelectorAll('#editStarPicker button').forEach((b, idx) => b.addEventListener('click', () => setEditImportance(idx + 1)));
+
+  document.getElementById('addSubtaskBtn').addEventListener('click', () => {
+    currentSubtasks.push({text: '', done: false}); renderSubtaskFormList();
+    setTimeout(() => { const ins = document.querySelectorAll('#subtaskFormList .subtask-form-input'); if(ins.length) ins[ins.length - 1].focus(); }, 30);
+  });
+  document.getElementById('editAddSubtaskBtn').addEventListener('click', () => {
+    editSubtasks.push({text: '', done: false}); renderEditSubtaskList();
+    setTimeout(() => { const ins = document.querySelectorAll('#editSubtaskList .subtask-form-input'); if(ins.length) ins[ins.length - 1].focus(); }, 30);
+  });
+
+  bindPhotoArea('photoUploadArea', 'photoInput', 'photoPlaceholder', 'photoPreviewWrap', 'photoPreviewImg', 'photoClearBtn', () => currentPhotoData, v => { currentPhotoData = v; });
+  bindPhotoArea('editPhotoArea', 'editPhotoInput', 'editPhotoPlaceholder', 'editPhotoPreviewWrap', 'editPhotoPreviewImg', 'editPhotoClearBtn', () => editPhotoData, v => { editPhotoData = v; });
+
+  document.getElementById('addBtn').addEventListener('click', addTask);
+  document.getElementById('subjectInput').addEventListener('keydown', e => { if(e.key === 'Enter') addTask(); });
+
+  const searchInput = document.getElementById('searchInput');
+  const searchClear = document.getElementById('searchClear');
+  let searchTimer = null;
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    searchClear.style.display = searchQuery ? '' : 'none';
+    clearTimeout(searchTimer); searchTimer = setTimeout(renderTasks, 150);
+  });
+  searchClear.addEventListener('click', () => { searchInput.value = ''; searchQuery = ''; searchClear.style.display = 'none'; renderTasks(); searchInput.focus(); });
+
+  const sortBtn = document.getElementById('sortBtn');
+  sortBtn.addEventListener('click', () => {
+    sortByImportance = !sortByImportance;
+    sortBtn.classList.toggle('active', sortByImportance);
+    sortBtn.setAttribute('aria-pressed', String(sortByImportance));
+    renderTasks();
+  });
+
+  document.getElementById('bulkDeleteBtn').addEventListener('click', triggerBulkDelete);
+
+  document.getElementById('editCancelBtn').addEventListener('click', closeEditSheet);
+  document.getElementById('editSaveBtn').addEventListener('click', saveEdit);
+  document.getElementById('editOverlay').addEventListener('click', e => { if(e.target.id === 'editOverlay') closeEditSheet(); });
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox').addEventListener('click', e => { if(e.target.id === 'lightbox') closeLightbox(); });
+
+  // 通知シート
+  const notifOverlay = document.getElementById('notifOverlay');
+  document.getElementById('notifHeaderBtn').addEventListener('click', () => {
+    updateNotifPermStatus();
+    notifOverlay.classList.add('open'); document.body.style.overflow = 'hidden';
+  });
+  notifOverlay.addEventListener('click', e => { if(e.target.id === 'notifOverlay'){ notifOverlay.classList.remove('open'); document.body.style.overflow = ''; } });
+  document.getElementById('notifCloseBtn').addEventListener('click', () => { notifOverlay.classList.remove('open'); document.body.style.overflow = ''; });
+  document.getElementById('notifPermBtn').addEventListener('click', requestBrowserNotif);
+  document.getElementById('notifTestBrowserBtn').addEventListener('click', () => {
+    if(typeof Notification === 'undefined' || Notification.permission !== 'granted'){ showToast('⚠️ まず通知を許可してください'); return; }
+    sendBrowserNotif('🌸 ぽちたす', 'これはテスト通知です！');
+    showToast('📬 テスト通知を送信しました');
+  });
+
+  // テーマシート
+  const themeOverlay = document.getElementById('themeOverlay');
+  document.getElementById('themeHeaderBtn').addEventListener('click', () => {
+    renderThemeGrid();
+    document.getElementById('darkModeToggle').checked = !!currentThemeConfig.dark;
+    if(currentThemeConfig.theme === 'custom' && currentThemeConfig.custom) document.getElementById('customColorInput').value = currentThemeConfig.custom;
+    themeOverlay.classList.add('open'); document.body.style.overflow = 'hidden';
+  });
+  themeOverlay.addEventListener('click', e => { if(e.target.id === 'themeOverlay'){ themeOverlay.classList.remove('open'); document.body.style.overflow = ''; } });
+  document.getElementById('themeCloseBtn').addEventListener('click', () => { themeOverlay.classList.remove('open'); document.body.style.overflow = ''; });
+  document.getElementById('customColorInput').addEventListener('input', e => {
+    const cfg = {...currentThemeConfig, theme: 'custom', custom: e.target.value};
+    applyTheme(cfg); saveThemeConfig(cfg); renderThemeGrid();
+  });
+  document.getElementById('darkModeToggle').addEventListener('change', e => {
+    const cfg = {...currentThemeConfig, dark: e.target.checked};
+    applyTheme(cfg); saveThemeConfig(cfg);
+    showToast(e.target.checked ? '🌙 ダークモードにしました' : '☀️ ライトモードにしました');
+  });
+
+  // Service Worker登録（対応環境ではオフライン起動・ホーム画面追加が安定する。非対応でも無視されるだけで安全）
+  if('serviceWorker' in navigator){
+    try{
+      const swCode = "self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{});";
+      const swBlob = new Blob([swCode], {type: 'application/javascript'});
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+    }catch(e){ /* サンドボックス環境等では失敗しても無視 */ }
+  }
+
+  renderSubtaskFormList();
+  renderEditSubtaskList();
+  updateTagFilters();
+  updateTagDatalist();
+  renderTasks();
+  updateNotifPermStatus();
+
+  setTimeout(checkDeadlines, 1500);
+  setInterval(checkDeadlines, 1000 * 60 * 30);
+})();
+</script>
+</body>
+</html>
