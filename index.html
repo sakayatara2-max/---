@@ -116,11 +116,21 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .add-card h2{margin:0;font-size:.95rem;color:var(--pink-dark);}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;}
 .field input[type="text"],.field input[type="date"],.field input[type="password"]{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;}
+.field input[type="date"]{color-scheme:light;min-height:44px;}
+.field input[type="date"]::-webkit-datetime-edit{color:var(--text);}
+.field input[type="date"]::-webkit-datetime-edit-fields-wrapper{color:var(--text);}
+.field input[type="date"]::-webkit-datetime-edit-text,
+.field input[type="date"]::-webkit-datetime-edit-month-field,
+.field input[type="date"]::-webkit-datetime-edit-day-field,
+.field input[type="date"]::-webkit-datetime-edit-year-field{color:var(--text);}
+.field input[type="date"]:not(:placeholder-shown)::-webkit-datetime-edit{color:var(--text);}
+.field input[type="date"]::-webkit-calendar-picker-indicator{opacity:.7;cursor:pointer;}
+body.dark .field input[type="date"]{color-scheme:dark;}
 .field input:focus{border-color:var(--pink);}
 .field-row{display:flex;gap:10px;}
 .field-row .field{flex:1;min-width:0;}
-.star-picker{display:flex;gap:6px;align-items:center;justify-content:center;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:10px;height:46px;}
-.star-picker button{background:none;border:none;font-size:1.35rem;cursor:pointer;line-height:1;filter:grayscale(1) opacity(.35);transition:filter .1s,transform .1s;}
+.star-picker{display:flex;gap:4px;align-items:center;justify-content:space-evenly;background:var(--field-bg);border:2px solid var(--pink-light);border-radius:14px;padding:10px 6px;height:46px;}
+.star-picker button{background:none;border:none;font-size:1.35rem;cursor:pointer;line-height:1;filter:grayscale(1) opacity(.35);transition:filter .1s,transform .1s;padding:0;margin:0;flex:1;text-align:center;}
 .star-picker button.active{filter:none;}
 .star-picker button:active{transform:scale(1.25);}
 .photo-upload-area{border:2px dashed var(--pink-light);border-radius:14px;background:var(--field-bg);min-height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:border-color .15s,background .15s;}
@@ -258,7 +268,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
       <div class="field">
         <label id="starPickerLabel">⭐ 重要度</label>
         <div class="star-picker" id="starPicker" role="radiogroup" aria-labelledby="starPickerLabel">
-          <button type="button" role="radio" aria-label="重要度1"></button><button type="button" role="radio" aria-label="重要度2"></button><button type="button" role="radio" aria-label="重要度3"></button>
+          <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
         </div>
       </div>
     </div>
@@ -294,7 +304,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
       <div class="field">
         <label id="editStarPickerLabel">⭐ 重要度</label>
         <div class="star-picker" id="editStarPicker" role="radiogroup" aria-labelledby="editStarPickerLabel">
-          <button type="button" role="radio" aria-label="重要度1"></button><button type="button" role="radio" aria-label="重要度2"></button><button type="button" role="radio" aria-label="重要度3"></button>
+          <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
         </div>
       </div>
     </div>
