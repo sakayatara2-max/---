@@ -116,16 +116,14 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .add-card h2{margin:0;font-size:.95rem;color:var(--pink-dark);}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;}
 .field input[type="text"],.field input[type="date"],.field input[type="password"]{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;}
-.field input[type="date"]{color-scheme:light;min-height:44px;}
-.field input[type="date"]::-webkit-datetime-edit{color:var(--text);}
-.field input[type="date"]::-webkit-datetime-edit-fields-wrapper{color:var(--text);}
+.field input[type="date"]{min-height:44px;-webkit-appearance:none;appearance:none;}
+.field input[type="date"]::-webkit-datetime-edit{color:var(--text)!important;opacity:1;}
+.field input[type="date"]::-webkit-datetime-edit-fields-wrapper{color:var(--text)!important;}
 .field input[type="date"]::-webkit-datetime-edit-text,
 .field input[type="date"]::-webkit-datetime-edit-month-field,
 .field input[type="date"]::-webkit-datetime-edit-day-field,
-.field input[type="date"]::-webkit-datetime-edit-year-field{color:var(--text);}
-.field input[type="date"]:not(:placeholder-shown)::-webkit-datetime-edit{color:var(--text);}
-.field input[type="date"]::-webkit-calendar-picker-indicator{opacity:.7;cursor:pointer;}
-body.dark .field input[type="date"]{color-scheme:dark;}
+.field input[type="date"]::-webkit-datetime-edit-year-field{color:var(--text)!important;-webkit-text-fill-color:var(--text);opacity:1;}
+.field input[type="date"]::-webkit-calendar-picker-indicator{opacity:.7;cursor:pointer;filter:none;}
 .field input:focus{border-color:var(--pink);}
 .field-row{display:flex;gap:10px;}
 .field-row .field{flex:1;min-width:0;}
