@@ -36,6 +36,21 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 #installAppBtn{position:absolute;left:0;top:6px;display:none;padding:0 12px;height:38px;border:2px solid var(--pink);border-radius:999px;background:var(--pink-light);color:var(--pink-dark);font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;align-items:center;gap:4px;box-shadow:0 2px 8px var(--shadow);}
 #installAppBtn:active{transform:scale(.93);background:var(--pink);color:white;}
 .progress-card{background:var(--card);border-radius:22px;padding:16px 18px;box-shadow:0 8px 22px var(--shadow);}
+
+/* ===== 今日のおすすめ（自動選抜） ===== */
+.today-pick-card{background:linear-gradient(135deg,var(--pink-light),var(--lavender));border-radius:22px;padding:14px 16px;box-shadow:0 8px 22px var(--shadow);display:none;flex-direction:column;gap:8px;}
+.today-pick-card.show{display:flex;}
+.today-pick-head{display:flex;align-items:center;justify-content:space-between;}
+.today-pick-title{font-size:.85rem;font-weight:800;color:var(--pink-dark);display:flex;align-items:center;gap:5px;}
+.today-pick-close{width:24px;height:24px;border:none;border-radius:50%;background:rgba(255,255,255,.6);color:var(--text);font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.today-pick-close:active{transform:scale(.85);}
+.today-pick-list{display:flex;flex-direction:column;gap:6px;}
+.today-pick-item{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.6);border-radius:14px;padding:9px 12px;cursor:pointer;transition:background .15s,transform .1s;}
+.today-pick-item:active{transform:scale(.98);background:rgba(255,255,255,.85);}
+.today-pick-check{width:22px;height:22px;flex-shrink:0;border-radius:50%;border:2px solid var(--pink);background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--pink);}
+.today-pick-text{flex:1;min-width:0;font-size:.85rem;font-weight:700;color:var(--text);word-break:break-word;}
+.today-pick-reason{font-size:.68rem;color:var(--text-soft);flex-shrink:0;white-space:nowrap;}
+.today-pick-empty{font-size:.78rem;color:var(--text-soft);text-align:center;padding:4px 0;}
 .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.85rem;font-weight:700;}
 .progress-top .label{color:var(--pink-dark);}
 .progress-track{height:12px;background:var(--pink-light);border-radius:999px;overflow:hidden;}
@@ -116,7 +131,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .add-card h2{margin:0;font-size:.95rem;color:var(--pink-dark);}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;}
 .field input[type="text"],.field input[type="date"],.field input[type="password"]{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;}
-.field input[type="date"]{min-height:44px;}
+.field input[type="date"]{min-height:48px;}
 .field input[type="date"]::-webkit-datetime-edit{color:var(--text)!important;opacity:1;}
 .field input[type="date"]::-webkit-datetime-edit-fields-wrapper{color:var(--text)!important;}
 .field input[type="date"]::-webkit-datetime-edit-text,
@@ -140,6 +155,12 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .photo-preview-wrap{width:100%;display:flex;align-items:center;justify-content:center;padding:10px;position:relative;}
 .photo-preview-img{max-height:110px;max-width:100%;border-radius:10px;object-fit:contain;box-shadow:0 2px 8px rgba(20,10,26,.15);}
 .photo-clear-btn{position:absolute;top:4px;right:4px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(20,10,26,.55);color:white;font-size:.78rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.ocr-row{display:flex;justify-content:center;padding:8px 0 2px;}
+.ocr-btn{padding:8px 16px;border:2px solid var(--lavender);border-radius:999px;background:var(--lavender);color:var(--text);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s,transform .1s;}
+.ocr-btn:active{transform:scale(.95);}
+.ocr-btn:disabled{opacity:.6;cursor:default;}
+.ocr-btn .spin{display:inline-block;animation:ocr-spin 1s linear infinite;}
+@keyframes ocr-spin{to{transform:rotate(360deg);}}
 .subtask-form-list{display:flex;flex-direction:column;gap:7px;margin-bottom:7px;}
 .subtask-form-item{display:flex;gap:6px;align-items:center;}
 .subtask-form-input{flex:1;font-family:inherit;font-size:.9rem;padding:9px 12px;border:2px solid var(--pink-light);border-radius:12px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;min-width:0;}
@@ -200,6 +221,17 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .lightbox-caption{color:rgba(255,255,255,.92);font-size:.98rem;font-weight:700;text-align:center;}
 .lightbox-close{padding:11px 32px;border:2px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(255,255,255,.1);color:white;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:background .15s;}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(20,10,26,.9);color:white;padding:10px 20px;border-radius:999px;font-size:.82rem;font-weight:600;z-index:10000;pointer-events:none;opacity:0;transition:opacity .22s;max-width:90vw;text-align:center;}
+
+/* ===== 隠し要素：完了数の節目でお祝い演出 ===== */
+.milestone-overlay{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .4s ease;}
+.milestone-overlay.show{opacity:1;}
+.milestone-card{background:rgba(20,10,26,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:white;border-radius:28px;padding:32px 30px;text-align:center;transform:scale(.7);transition:transform .45s cubic-bezier(.3,1.6,.4,1);max-width:280px;}
+.milestone-overlay.show .milestone-card{transform:scale(1);}
+.milestone-num{font-size:2.6rem;font-weight:800;line-height:1;margin-bottom:6px;}
+.milestone-label{font-size:.95rem;font-weight:700;opacity:.92;}
+.milestone-confetti{position:fixed;inset:0;z-index:9490;pointer-events:none;overflow:hidden;}
+.confetti-piece{position:absolute;top:-20px;font-size:1.1rem;animation:confetti-fall linear forwards;}
+@keyframes confetti-fall{to{transform:translateY(110vh) rotate(360deg);opacity:.3;}}
 .toast.show{opacity:1;}
 .sparkle{position:absolute;left:16px;top:50%;font-size:1rem;pointer-events:none;animation:sparkle-fly .5s ease-out forwards;}
 @keyframes sparkle-fly{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0deg);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(90deg);}}
@@ -217,6 +249,14 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     <button class="header-icon-btn" id="notifHeaderBtn" aria-label="通知設定" aria-haspopup="dialog">🔔</button>
     <button id="installAppBtn" aria-label="ホーム画面に追加">📲 追加</button>
   </header>
+
+  <div class="today-pick-card" id="todayPickCard">
+    <div class="today-pick-head">
+      <span class="today-pick-title">🌅 今日はコレをやろう！</span>
+      <button class="today-pick-close" id="todayPickClose" aria-label="今日のおすすめを閉じる">✕</button>
+    </div>
+    <div class="today-pick-list" id="todayPickList"></div>
+  </div>
 
   <div class="progress-card">
     <div class="progress-top">
@@ -261,13 +301,14 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
       <label for="subjectInput">課題名</label>
       <input type="text" id="subjectInput" placeholder="例: 数学のプリント" maxlength="200">
     </div>
-    <div class="field-row">
-      <div class="field"><label for="deadlineInput">📅 期限</label><input type="date" id="deadlineInput"></div>
-      <div class="field">
-        <label id="starPickerLabel">⭐ 重要度</label>
-        <div class="star-picker" id="starPicker" role="radiogroup" aria-labelledby="starPickerLabel">
-          <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
-        </div>
+    <div class="field">
+      <label for="deadlineInput">📅 期限</label>
+      <input type="date" id="deadlineInput">
+    </div>
+    <div class="field">
+      <label id="starPickerLabel">⭐ 重要度</label>
+      <div class="star-picker" id="starPicker" role="radiogroup" aria-labelledby="starPickerLabel">
+        <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
       </div>
     </div>
     <div class="field">
@@ -287,6 +328,9 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
         <div class="photo-placeholder" id="photoPlaceholder"><span class="ph-ico" aria-hidden="true">📷</span><span>タップして写真を選ぶ</span><span class="ph-hint">カメラ・ライブラリから選べます</span></div>
         <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none"><img class="photo-preview-img" id="photoPreviewImg" alt="選択した写真のプレビュー"><button type="button" class="photo-clear-btn" id="photoClearBtn" aria-label="写真を削除">✕</button></div>
       </div>
+      <div class="ocr-row" id="ocrRow" style="display:none">
+        <button type="button" class="ocr-btn" id="ocrBtn">🔍 写真から課題名を読み取る</button>
+      </div>
     </div>
     <button class="btn-primary" id="addBtn">✨ 追加する ✨</button>
   </div>
@@ -297,13 +341,14 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     <div class="sheet-handle"></div>
     <h2 class="sheet-title" id="editSheetTitle">✏️ タスクを編集</h2>
     <div class="field"><label for="editSubject">課題名</label><input type="text" id="editSubject" placeholder="課題名" maxlength="200"></div>
-    <div class="field-row">
-      <div class="field"><label for="editDeadline">📅 期限</label><input type="date" id="editDeadline"></div>
-      <div class="field">
-        <label id="editStarPickerLabel">⭐ 重要度</label>
-        <div class="star-picker" id="editStarPicker" role="radiogroup" aria-labelledby="editStarPickerLabel">
-          <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
-        </div>
+    <div class="field">
+      <label for="editDeadline">📅 期限</label>
+      <input type="date" id="editDeadline">
+    </div>
+    <div class="field">
+      <label id="editStarPickerLabel">⭐ 重要度</label>
+      <div class="star-picker" id="editStarPicker" role="radiogroup" aria-labelledby="editStarPickerLabel">
+        <button type="button" role="radio" aria-label="重要度1">⭐</button><button type="button" role="radio" aria-label="重要度2">⭐</button><button type="button" role="radio" aria-label="重要度3">⭐</button>
       </div>
     </div>
     <div class="field"><label for="editTag">🏷️ タグ</label><input type="text" id="editTag" list="tagOptions" placeholder="学校・個人・部活など" maxlength="30"></div>
@@ -374,6 +419,13 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="milestone-confetti" id="milestoneConfetti"></div>
+<div class="milestone-overlay" id="milestoneOverlay">
+  <div class="milestone-card">
+    <div class="milestone-num" id="milestoneNum">10</div>
+    <div class="milestone-label" id="milestoneLabel">かんせい！</div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -604,9 +656,73 @@ function compressImage(file){
   });
 }
 
-function bindPhotoArea(areaId, inputId, placeholderId, previewWrapId, previewImgId, clearBtnId, getVal, setVal){
+// ===== 写真から課題名を自動読み取り（OCR / Tesseract.js） =====
+// 初回起動を重くしないよう、OCRボタンが押されたときだけ動的にライブラリを読み込む。
+let tesseractLoadPromise = null;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve();
+  if(tesseractLoadPromise) return tesseractLoadPromise;
+  tesseractLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('OCRライブラリの読み込みに失敗しました'));
+    document.head.appendChild(script);
+  });
+  return tesseractLoadPromise;
+}
+
+// 写真から抽出した生テキストの中から、課題名っぽい一行を推測して選び出す。
+// ノイズ（記号だけの行、極端に短い/長い行）を除外し、一番「文章っぽい」行を優先する。
+function guessSubjectFromOcrText(rawText){
+  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const candidates = lines.filter(l => {
+    const lettersOnly = l.replace(/[\s\d\p{P}\p{S}]/gu, '');
+    return lettersOnly.length >= 2 && l.length <= 40;
+  });
+  if(candidates.length === 0) return lines[0] || '';
+  candidates.sort((a, b) => {
+    const scoreOf = s => s.replace(/[\s\d\p{P}\p{S}]/gu, '').length;
+    return scoreOf(b) - scoreOf(a);
+  });
+  return candidates[0];
+}
+
+async function runOcrOnPhoto(photoDataUrl, btnEl){
+  const originalLabel = btnEl.innerHTML;
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<span class="spin">⏳</span> 読み込み中...';
+  try{
+    await loadTesseract();
+    btnEl.innerHTML = '<span class="spin">🔍</span> 文字を認識中...';
+    const result = await window.Tesseract.recognize(photoDataUrl, 'jpn+eng', {
+      logger: info => {
+        if(info.status === 'recognizing text' && typeof info.progress === 'number'){
+          btnEl.innerHTML = '<span class="spin">🔍</span> 認識中 ' + Math.round(info.progress * 100) + '%';
+        }
+      }
+    });
+    const text = (result && result.data && result.data.text) ? result.data.text : '';
+    const guess = guessSubjectFromOcrText(text);
+    if(guess){
+      return guess;
+    } else {
+      showToast('⚠️ 文字を読み取れませんでした。手入力してください');
+      return null;
+    }
+  }catch(err){
+    showToast('⚠️ 読み取りに失敗しました。通信環境をご確認ください');
+    return null;
+  }finally{
+    btnEl.disabled = false;
+    btnEl.innerHTML = originalLabel;
+  }
+}
+
+function bindPhotoArea(areaId, inputId, placeholderId, previewWrapId, previewImgId, clearBtnId, getVal, setVal, ocrRowId){
   const area = document.getElementById(areaId);
   const input = document.getElementById(inputId);
+  const ocrRow = ocrRowId ? document.getElementById(ocrRowId) : null;
   area.addEventListener('click', e => { if(e.target.id === clearBtnId) return; if(!getVal()) input.click(); });
   area.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && !getVal()){ e.preventDefault(); input.click(); } });
   input.addEventListener('change', async e => {
@@ -618,6 +734,7 @@ function bindPhotoArea(areaId, inputId, placeholderId, previewWrapId, previewImg
       document.getElementById(placeholderId).style.display = 'none';
       document.getElementById(previewWrapId).style.display = '';
       area.classList.remove('empty');
+      if(ocrRow) ocrRow.style.display = '';
     }catch(err){ showToast('⚠️ 写真を読み込めませんでした'); }
   });
   document.getElementById(clearBtnId).addEventListener('click', e => {
@@ -626,6 +743,7 @@ function bindPhotoArea(areaId, inputId, placeholderId, previewWrapId, previewImg
     document.getElementById(placeholderId).style.display = '';
     document.getElementById(previewWrapId).style.display = 'none';
     area.classList.add('empty');
+    if(ocrRow) ocrRow.style.display = 'none';
   });
 }
 
@@ -723,6 +841,47 @@ function spawnSparkles(card){
     s.style.setProperty('--dy', (-Math.abs(Math.sin(angle) * dist) - 10) + 'px');
     card.appendChild(s); setTimeout(() => s.remove(), 700);
   }
+}
+
+// ===== 隠し要素：累計完了数が節目（10, 30, 50, 100, 200...）に達したらお祝い演出 =====
+// タスクを削除しても減らない「生涯完了数」を別途カウントし、達成した瞬間にだけ表示する。
+// 誰かに教えるための機能ではなく、使っているうちにふと出会う体験として仕込んでいる。
+const LIFETIME_DONE_KEY = 'kawaii_lifetime_done_v1';
+const MILESTONES = [10, 30, 50, 100, 200, 365, 500, 1000];
+const MILESTONE_LABELS = {
+  10:'はじめの一歩！', 30:'いいペース！', 50:'半世紀達成！', 100:'100の大台！',
+  200:'すごすぎる…！', 365:'一年分やった！？', 500:'伝説の域…', 1000:'もはや神様'
+};
+function getLifetimeDone(){
+  try{ return parseInt(localStorage.getItem(LIFETIME_DONE_KEY) || '0', 10) || 0; }catch(e){ return 0; }
+}
+function bumpLifetimeDone(){
+  const next = getLifetimeDone() + 1;
+  try{ localStorage.setItem(LIFETIME_DONE_KEY, String(next)); }catch(e){}
+  if(MILESTONES.includes(next)) showMilestone(next);
+}
+function spawnConfetti(){
+  const wrap = document.getElementById('milestoneConfetti');
+  const emojis = ['🎉','✨','🎊','⭐','💖','🌸'];
+  for(let i = 0; i < 24; i++){
+    const p = document.createElement('span'); p.className = 'confetti-piece';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+    wrap.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+}
+function showMilestone(count){
+  const overlay = document.getElementById('milestoneOverlay');
+  document.getElementById('milestoneNum').textContent = count;
+  document.getElementById('milestoneLabel').textContent = MILESTONE_LABELS[count] || 'おめでとう！';
+  spawnConfetti();
+  playPochiSound();
+  overlay.classList.add('show');
+  setTimeout(() => { overlay.classList.remove('show'); }, 2600);
 }
 
 function toggleSubtask(taskId, si){
@@ -880,6 +1039,68 @@ function checkDeadlines(){
   sendBrowserNotif(title, body);
 }
 
+// ===== 今日のおすすめ（期限×重要度で自動選抜） =====
+// 「今日やること」を毎回自分で選ばなくていいように、期限の近さと重要度からスコアを計算して上位を自動で提案する。
+// 一度「閉じる」を押したら、その日はもう出さない（今日の日付をlocalStorageに記録して判定）。
+const TODAY_PICK_DISMISS_KEY = 'kawaii_today_pick_dismiss_v1';
+function todayDateStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function isTodayPickDismissed(){
+  try{ return localStorage.getItem(TODAY_PICK_DISMISS_KEY) === todayDateStr(); }catch(e){ return false; }
+}
+function dismissTodayPick(){
+  try{ localStorage.setItem(TODAY_PICK_DISMISS_KEY, todayDateStr()); }catch(e){}
+}
+function computeTodayPicks(){
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const scored = tasks.filter(t => !t.done).map(t => {
+    let score = (t.importance || 1) * 10;
+    let reason = '重要度' + '⭐'.repeat(t.importance || 1);
+    if(t.deadline){
+      const dl = new Date(t.deadline + 'T00:00:00');
+      const diff = Math.round((dl - now) / (1000 * 60 * 60 * 24));
+      if(diff < 0){ score += 100; reason = '⚠️ 期限切れ'; }
+      else if(diff === 0){ score += 80; reason = '🚨 今日が期限'; }
+      else if(diff === 1){ score += 50; reason = '⏰ 明日が期限'; }
+      else if(diff <= 3){ score += 25; reason = '📅 あと' + diff + '日'; }
+      else if(diff <= 7){ score += 10; reason = '📅 あと' + diff + '日'; }
+    }
+    return {t, score, reason};
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3);
+}
+function renderTodayPick(){
+  const card = document.getElementById('todayPickCard');
+  const list = document.getElementById('todayPickList');
+  if(isTodayPickDismissed() || tasks.filter(t => !t.done).length === 0){
+    card.classList.remove('show');
+    return;
+  }
+  const picks = computeTodayPicks();
+  list.innerHTML = '';
+  picks.forEach(({t, reason}) => {
+    const item = document.createElement('div'); item.className = 'today-pick-item';
+    item.setAttribute('role', 'button'); item.tabIndex = 0;
+    item.setAttribute('aria-label', '完了にする: ' + t.subject);
+    const check = document.createElement('span'); check.className = 'today-pick-check';
+    const txt = document.createElement('span'); txt.className = 'today-pick-text'; txt.textContent = t.subject;
+    const rs = document.createElement('span'); rs.className = 'today-pick-reason'; rs.textContent = reason;
+    item.appendChild(check); item.appendChild(txt); item.appendChild(rs);
+    const doToggle = () => {
+      const ti = tasks.findIndex(x => x.id === t.id); if(ti === -1) return;
+      tasks[ti].done = true; saveTasks(); bumpLifetimeDone(); renderTasks(); renderTodayPick();
+      showToast('✨ 「' + t.subject + '」やったね！');
+    };
+    item.addEventListener('click', doToggle);
+    item.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); doToggle(); } });
+    list.appendChild(item);
+  });
+  card.classList.add('show');
+}
+
 let currentThemeConfig = { theme: 'sakura', custom: null, dark: false };
 
 function hexToRgb(hex){
@@ -961,7 +1182,7 @@ function renderTasks(){
     else if(statusFilter === 'active') empty.innerHTML = '<span class="big">🎉</span>未完了のタスクはありません。';
     else if(statusFilter === 'done') empty.innerHTML = '<span class="big">📭</span>完了済みのタスクはまだありません。';
     else empty.innerHTML = '<span class="big">🏷️</span>「' + escapeAttr(activeTag) + '」タグのタスクはありません。';
-    updateProgress(); updateBulkDeleteBtn(); initSortable(); return;
+    updateProgress(); updateBulkDeleteBtn(); initSortable(); renderTodayPick(); return;
   }
   empty.style.display = 'none';
   const canDrag = !sortByImportance && !searchQuery.trim() && activeTag === 'all' && statusFilter === 'all' && tasks.length > 1;
@@ -1055,12 +1276,13 @@ function renderTasks(){
   });
   updateProgress(); updateBulkDeleteBtn();
   initSortable();
+  renderTodayPick();
 }
 
 function toggleDone(i, card){
   tasks[i].done = !tasks[i].done;
   saveTasks();
-  if(tasks[i].done){ spawnSparkles(card); setTimeout(renderTasks, 700); }
+  if(tasks[i].done){ spawnSparkles(card); bumpLifetimeDone(); setTimeout(renderTasks, 700); }
   else { renderTasks(); }
 }
 function deleteTask(i){ tasks.splice(i, 1); saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist(); }
@@ -1115,6 +1337,7 @@ function addTask(){
   document.getElementById('photoPlaceholder').style.display = '';
   document.getElementById('photoPreviewWrap').style.display = 'none';
   document.getElementById('photoUploadArea').classList.add('empty');
+  document.getElementById('ocrRow').style.display = 'none';
   subEl.focus();
   showToast('✨ タスクを追加しました');
 }
@@ -1148,8 +1371,19 @@ function addTask(){
     setTimeout(() => { const ins = document.querySelectorAll('#editSubtaskList .subtask-form-input'); if(ins.length) ins[ins.length - 1].focus(); }, 30);
   });
 
-  bindPhotoArea('photoUploadArea', 'photoInput', 'photoPlaceholder', 'photoPreviewWrap', 'photoPreviewImg', 'photoClearBtn', () => currentPhotoData, v => { currentPhotoData = v; });
+  bindPhotoArea('photoUploadArea', 'photoInput', 'photoPlaceholder', 'photoPreviewWrap', 'photoPreviewImg', 'photoClearBtn', () => currentPhotoData, v => { currentPhotoData = v; }, 'ocrRow');
   bindPhotoArea('editPhotoArea', 'editPhotoInput', 'editPhotoPlaceholder', 'editPhotoPreviewWrap', 'editPhotoPreviewImg', 'editPhotoClearBtn', () => editPhotoData, v => { editPhotoData = v; });
+  document.getElementById('ocrBtn').addEventListener('click', async () => {
+    if(!currentPhotoData) return;
+    const btn = document.getElementById('ocrBtn');
+    const guess = await runOcrOnPhoto(currentPhotoData, btn);
+    if(guess){
+      const subEl = document.getElementById('subjectInput');
+      subEl.value = guess;
+      subEl.focus();
+      showToast('✨ 「' + guess + '」を読み取りました');
+    }
+  });
 
   document.getElementById('addBtn').addEventListener('click', addTask);
   document.getElementById('subjectInput').addEventListener('keydown', e => { if(e.key === 'Enter') addTask(); });
@@ -1235,6 +1469,10 @@ function addTask(){
   updateTagDatalist();
   renderTasks();
   updateNotifPermStatus();
+  document.getElementById('todayPickClose').addEventListener('click', () => {
+    dismissTodayPick();
+    document.getElementById('todayPickCard').classList.remove('show');
+  });
 
   setTimeout(checkDeadlines, 1500);
   setInterval(checkDeadlines, 1000 * 60 * 30);
