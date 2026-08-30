@@ -131,7 +131,20 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .add-card h2{margin:0;font-size:.95rem;color:var(--pink-dark);}
 .field label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;}
 .field input[type="text"],.field input[type="password"]{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;transition:border-color .15s;}
-.field input[type="date"]{width:100%;font-family:inherit;padding:13px 10px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text);outline:none;box-sizing:border-box;line-height:normal;}
+.date-picker-btn{width:100%;font-family:inherit;font-size:1rem;padding:13px;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);color:var(--text-soft);outline:none;box-sizing:border-box;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s;}
+.date-picker-btn:active{border-color:var(--pink);}
+.date-picker-btn.has-value{color:var(--text);}
+.date-picker-btn .dp-ico{flex-shrink:0;font-size:1rem;opacity:.7;}
+.date-picker-btn .dp-clear{flex-shrink:0;width:22px;height:22px;border:none;border-radius:50%;background:var(--pink-light);color:var(--pink-dark);font-size:.68rem;display:flex;align-items:center;justify-content:center;margin-left:6px;}
+.date-sheet-cols{display:flex;gap:8px;}
+.date-sheet-col{flex:1;display:flex;flex-direction:column;min-width:0;}
+.date-sheet-col-label{font-size:.72rem;font-weight:700;color:var(--text-soft);text-align:center;margin-bottom:6px;}
+.date-sheet-scroll{height:180px;overflow-y:auto;border:2px solid var(--pink-light);border-radius:14px;background:var(--field-bg);scroll-snap-type:y proximity;-webkit-overflow-scrolling:touch;}
+.date-sheet-opt{padding:11px 0;text-align:center;font-size:.95rem;color:var(--text);cursor:pointer;scroll-snap-align:center;border-radius:10px;transition:background .12s;}
+.date-sheet-opt.selected{background:var(--pink);color:white;font-weight:800;}
+.date-sheet-opt:active{background:var(--pink-light);}
+.date-sheet-today-btn{margin-top:12px;width:100%;padding:11px;border:2px solid var(--lavender);border-radius:14px;background:var(--lavender);color:var(--text);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;}
+.date-sheet-today-btn:active{background:var(--pink-light);border-color:var(--pink);}
 .field input:focus{border-color:var(--pink);}
 .field-row{display:flex;gap:10px;}
 .field-row .field{flex:1;min-width:0;}
@@ -296,7 +309,10 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     </div>
     <div class="field">
       <label for="deadlineInput">📅 期限</label>
-      <input type="date" id="deadlineInput">
+      <button type="button" class="date-picker-btn" id="deadlineInput" aria-haspopup="dialog">
+        <span class="dp-label" id="deadlineInputLabel">年/月/日を選ぶ</span>
+        <span class="dp-ico" aria-hidden="true">📅</span>
+      </button>
     </div>
     <div class="field">
       <label id="starPickerLabel">⭐ 重要度</label>
@@ -336,7 +352,10 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     <div class="field"><label for="editSubject">課題名</label><input type="text" id="editSubject" placeholder="課題名" maxlength="200"></div>
     <div class="field">
       <label for="editDeadline">📅 期限</label>
-      <input type="date" id="editDeadline">
+      <button type="button" class="date-picker-btn" id="editDeadline" aria-haspopup="dialog">
+        <span class="dp-label" id="editDeadlineLabel">年/月/日を選ぶ</span>
+        <span class="dp-ico" aria-hidden="true">📅</span>
+      </button>
     </div>
     <div class="field">
       <label id="editStarPickerLabel">⭐ 重要度</label>
@@ -400,6 +419,32 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     </div>
     <div class="sheet-buttons">
       <button class="sheet-cancel-btn" id="themeCloseBtn" style="flex:1">とじる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="dateSheetOverlay">
+  <div class="bottom-sheet" id="dateSheet" role="dialog" aria-modal="true" aria-labelledby="dateSheetTitle">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title" id="dateSheetTitle">📅 期限を選ぶ</h2>
+    <div class="date-sheet-cols">
+      <div class="date-sheet-col">
+        <div class="date-sheet-col-label">年</div>
+        <div class="date-sheet-scroll" id="dateSheetYear"></div>
+      </div>
+      <div class="date-sheet-col">
+        <div class="date-sheet-col-label">月</div>
+        <div class="date-sheet-scroll" id="dateSheetMonth"></div>
+      </div>
+      <div class="date-sheet-col">
+        <div class="date-sheet-col-label">日</div>
+        <div class="date-sheet-scroll" id="dateSheetDay"></div>
+      </div>
+    </div>
+    <button type="button" class="date-sheet-today-btn" id="dateSheetTodayBtn">📍 今日にする</button>
+    <div class="sheet-buttons">
+      <button class="sheet-cancel-btn" id="dateSheetClearBtn">クリア</button>
+      <button class="btn-primary" id="dateSheetDoneBtn" style="flex:1.5">✅ 決定</button>
     </div>
   </div>
 </div>
@@ -913,12 +958,111 @@ function initSortable(){
   });
 }
 
+// ===== カスタム日付ピッカー =====
+// iOSのネイティブ<input type="date">はSafari側のシャドウDOMの都合でCSSが効きにくく、
+// 文字が見えなくなったり枠からはみ出したりする問題が繰り返し起きたため、
+// 見た目を完全に自前で制御できる年/月/日スクロール選択に置き換えている。
+// 値は各ボタン要素の data-value 属性に 'YYYY-MM-DD' 形式（または空文字）で保持し、
+// 他のロジックからは従来どおり input.value 相当として扱えるようヘルパーを揃える。
+let dateSheetTargetId = null;
+let dateSheetYear = null, dateSheetMonth = null, dateSheetDay = null;
+
+function getDateBtnValue(id){
+  const el = document.getElementById(id);
+  return el ? (el.dataset.value || '') : '';
+}
+function setDateBtnValue(id, iso){
+  const btn = document.getElementById(id);
+  const label = document.getElementById(id + 'Label');
+  if(!btn || !label) return;
+  btn.dataset.value = iso || '';
+  if(iso){
+    label.textContent = formatDeadline(iso);
+    btn.classList.add('has-value');
+  } else {
+    label.textContent = '年/月/日を選ぶ';
+    btn.classList.remove('has-value');
+  }
+}
+function daysInMonth(year, month){ return new Date(year, month, 0).getDate(); }
+function buildDateSheetColumn(containerId, items, selected, onPick){
+  const col = document.getElementById(containerId);
+  col.innerHTML = '';
+  items.forEach(v => {
+    const opt = document.createElement('div');
+    opt.className = 'date-sheet-opt' + (v === selected ? ' selected' : '');
+    opt.textContent = String(v);
+    opt.dataset.val = v;
+    opt.addEventListener('click', () => onPick(v));
+    col.appendChild(opt);
+  });
+  const sel = col.querySelector('.selected');
+  if(sel) setTimeout(() => sel.scrollIntoView({block: 'center'}), 0);
+}
+function refreshDateSheetDays(){
+  const maxDay = daysInMonth(dateSheetYear, dateSheetMonth);
+  if(dateSheetDay > maxDay) dateSheetDay = maxDay;
+  const days = Array.from({length: maxDay}, (_, i) => i + 1);
+  buildDateSheetColumn('dateSheetDay', days, dateSheetDay, v => {
+    dateSheetDay = v;
+    document.querySelectorAll('#dateSheetDay .date-sheet-opt').forEach(el => el.classList.toggle('selected', Number(el.dataset.val) === v));
+  });
+}
+function openDateSheet(targetBtnId){
+  dateSheetTargetId = targetBtnId;
+  const current = getDateBtnValue(targetBtnId);
+  const now = new Date();
+  let y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+  if(current){
+    const p = current.split('-').map(Number);
+    if(p.length === 3){ y = p[0]; m = p[1]; d = p[2]; }
+  }
+  dateSheetYear = y; dateSheetMonth = m; dateSheetDay = d;
+
+  const years = Array.from({length: 11}, (_, i) => now.getFullYear() - 2 + i);
+  buildDateSheetColumn('dateSheetYear', years, dateSheetYear, v => {
+    dateSheetYear = v;
+    document.querySelectorAll('#dateSheetYear .date-sheet-opt').forEach(el => el.classList.toggle('selected', Number(el.dataset.val) === v));
+    refreshDateSheetDays();
+  });
+  const months = Array.from({length: 12}, (_, i) => i + 1);
+  buildDateSheetColumn('dateSheetMonth', months, dateSheetMonth, v => {
+    dateSheetMonth = v;
+    document.querySelectorAll('#dateSheetMonth .date-sheet-opt').forEach(el => el.classList.toggle('selected', Number(el.dataset.val) === v));
+    refreshDateSheetDays();
+  });
+  refreshDateSheetDays();
+
+  document.getElementById('dateSheetOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDateSheet(){
+  document.getElementById('dateSheetOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  dateSheetTargetId = null;
+}
+function confirmDateSheet(){
+  if(!dateSheetTargetId) return;
+  const iso = dateSheetYear + '-' + String(dateSheetMonth).padStart(2, '0') + '-' + String(dateSheetDay).padStart(2, '0');
+  setDateBtnValue(dateSheetTargetId, iso);
+  closeDateSheet();
+}
+function clearDateSheet(){
+  if(dateSheetTargetId) setDateBtnValue(dateSheetTargetId, '');
+  closeDateSheet();
+}
+function setDateSheetToday(){
+  const now = new Date();
+  dateSheetYear = now.getFullYear(); dateSheetMonth = now.getMonth() + 1; dateSheetDay = now.getDate();
+  openDateSheet(dateSheetTargetId);
+}
+
 function openEditSheet(taskId){
   const ti = tasks.findIndex(t => t.id === taskId); if(ti === -1) return;
   const t = tasks[ti];
   editTaskId = taskId;
   document.getElementById('editSubject').value = t.subject || '';
-  document.getElementById('editDeadline').value = t.deadline || '';
+  setDateBtnValue('editDeadline', t.deadline || '');
   document.getElementById('editTag').value = t.tag || '';
 
   editImportance = t.importance || 1;
@@ -960,7 +1104,7 @@ function saveEdit(){
   tasks[ti] = {
     ...tasks[ti],
     subject: sub,
-    deadline: document.getElementById('editDeadline').value,
+    deadline: getDateBtnValue('editDeadline'),
     importance: editImportance,
     tag: document.getElementById('editTag').value.trim(),
     photo: editPhotoData,
@@ -1317,13 +1461,13 @@ function addTask(){
   const sub = subEl.value.trim();
   if(!sub){ subEl.focus(); showToast('⚠️ 課題名を入力してください'); return; }
   tasks.push({
-    id: genId(), subject: sub, deadline: document.getElementById('deadlineInput').value,
+    id: genId(), subject: sub, deadline: getDateBtnValue('deadlineInput'),
     importance: currentImportance, tag: document.getElementById('tagInput').value.trim(),
     done: false, photo: currentPhotoData,
     subtasks: currentSubtasks.filter(s => s.text.trim()).map(s => ({text: s.text.trim(), done: false}))
   });
   saveTasks(); renderTasks(); updateTagFilters(); updateTagDatalist();
-  subEl.value = ''; document.getElementById('deadlineInput').value = ''; document.getElementById('tagInput').value = '';
+  subEl.value = ''; setDateBtnValue('deadlineInput', ''); document.getElementById('tagInput').value = '';
   currentSubtasks = []; renderSubtaskFormList(); setImportance(1);
   currentPhotoData = null; document.getElementById('photoInput').value = '';
   document.getElementById('photoPreviewImg').src = '';
@@ -1452,6 +1596,14 @@ function addTask(){
     applyTheme(cfg); saveThemeConfig(cfg);
     showToast(e.target.checked ? '🌙 ダークモードにしました' : '☀️ ライトモードにしました');
   });
+
+  // 日付ピッカーシート
+  document.getElementById('deadlineInput').addEventListener('click', () => openDateSheet('deadlineInput'));
+  document.getElementById('editDeadline').addEventListener('click', () => openDateSheet('editDeadline'));
+  document.getElementById('dateSheetDoneBtn').addEventListener('click', confirmDateSheet);
+  document.getElementById('dateSheetClearBtn').addEventListener('click', clearDateSheet);
+  document.getElementById('dateSheetTodayBtn').addEventListener('click', setDateSheetToday);
+  document.getElementById('dateSheetOverlay').addEventListener('click', e => { if(e.target.id === 'dateSheetOverlay') closeDateSheet(); });
 
   setupPWA();
   document.getElementById('installAppBtn').addEventListener('click', triggerInstallPrompt);
