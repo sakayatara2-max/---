@@ -25,7 +25,7 @@
 *{box-sizing:border-box;}html,body{margin:0;padding:0;}button{font-family:inherit;}
 body{font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN',sans-serif;background:linear-gradient(160deg,var(--bg-a) 0%,var(--bg-a) 45%,var(--bg-b) 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:20px 14px 60px;transition:background .35s ease,color .35s ease;}
 .app{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px;}
-header{text-align:center;padding:6px 84px 2px 92px;position:relative;}
+header{text-align:center;padding:6px 128px 2px 92px;position:relative;}
 header h1{margin:0;font-size:1.5rem;font-weight:800;color:var(--pink-dark);letter-spacing:.02em;}
 header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .header-icon-btn{position:absolute;top:6px;width:38px;height:38px;border:2px solid var(--pink-light);border-radius:50%;background:var(--card);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px var(--shadow);transition:transform .15s,border-color .15s,background .15s;}
@@ -33,6 +33,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .header-icon-btn.active{border-color:var(--pink);background:var(--pink-light);}
 #notifHeaderBtn{right:0;}
 #themeHeaderBtn{right:44px;}
+#tutorialHeaderBtn{right:88px;}
 #installAppBtn{position:absolute;left:0;top:6px;display:none;padding:0 12px;height:38px;border:2px solid var(--pink);border-radius:999px;background:var(--pink-light);color:var(--pink-dark);font-family:inherit;font-size:.72rem;font-weight:700;cursor:pointer;align-items:center;gap:4px;box-shadow:0 2px 8px var(--shadow);}
 #installAppBtn:active{transform:scale(.93);background:var(--pink);color:white;}
 .progress-card{background:var(--card);border-radius:22px;padding:16px 18px;box-shadow:0 8px 22px var(--shadow);}
@@ -239,6 +240,28 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .milestone-confetti{position:fixed;inset:0;z-index:9490;pointer-events:none;overflow:hidden;}
 .confetti-piece{position:absolute;top:-20px;font-size:1.1rem;animation:confetti-fall linear forwards;}
 @keyframes confetti-fall{to{transform:translateY(110vh) rotate(360deg);opacity:.3;}}
+
+/* ===== チュートリアル（初回オンボーディング） ===== */
+.tutorial-overlay{position:fixed;inset:0;z-index:9800;background:rgba(20,10,26,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.tutorial-overlay.open{opacity:1;pointer-events:all;}
+.tutorial-card{position:relative;width:100%;max-width:400px;background:var(--card);border-radius:26px;padding:20px 0 22px;box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;transform:scale(.92);transition:transform .3s cubic-bezier(.3,1.3,.5,1);}
+.tutorial-overlay.open .tutorial-card{transform:scale(1);}
+.tutorial-skip-btn{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-soft);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;padding:6px 8px;z-index:2;}
+.tutorial-viewport{overflow:hidden;width:100%;}
+.tutorial-track{display:flex;transition:transform .35s cubic-bezier(.3,1,.4,1);touch-action:pan-y;}
+.tutorial-slide{flex:0 0 100%;width:100%;box-sizing:border-box;padding:40px 30px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.tutorial-slide-icon{font-size:3.2rem;line-height:1;margin-bottom:16px;}
+.tutorial-slide-title{font-size:1.05rem;font-weight:800;color:var(--pink-dark);margin-bottom:10px;}
+.tutorial-slide-text{font-size:.86rem;color:var(--text);line-height:1.75;}
+.tutorial-dots{display:flex;justify-content:center;gap:6px;margin:18px 0 2px;}
+.tutorial-dot{width:7px;height:7px;border-radius:50%;background:var(--pink-light);transition:background .2s,transform .2s;cursor:pointer;}
+.tutorial-dot.active{background:var(--pink);transform:scale(1.35);}
+.tutorial-nav-row{display:flex;gap:10px;padding:16px 22px 0;}
+.tutorial-nav-btn{flex:1;padding:12px;border-radius:14px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;border:2px solid transparent;}
+.tutorial-nav-btn.secondary{background:var(--card);border-color:var(--pink-light);color:var(--text);}
+.tutorial-nav-btn.secondary.hidden{visibility:hidden;}
+.tutorial-nav-btn.primary{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border-color:transparent;box-shadow:0 6px 16px var(--shadow);}
+.tutorial-nav-btn:active{transform:scale(.97);}
 .toast.show{opacity:1;}
 .sparkle{position:absolute;left:16px;top:50%;font-size:1rem;pointer-events:none;animation:sparkle-fly .5s ease-out forwards;}
 @keyframes sparkle-fly{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0deg);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(90deg);}}
@@ -254,6 +277,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     <p>今日もコツコツがんばろう</p>
     <button class="header-icon-btn" id="themeHeaderBtn" aria-label="テーマ設定" aria-haspopup="dialog">🎨</button>
     <button class="header-icon-btn" id="notifHeaderBtn" aria-label="通知設定" aria-haspopup="dialog">🔔</button>
+    <button class="header-icon-btn" id="tutorialHeaderBtn" aria-label="使い方を見る" aria-haspopup="dialog">❓</button>
     <button id="installAppBtn" aria-label="ホーム画面に追加">📲 追加</button>
   </header>
 
@@ -464,6 +488,20 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
   <div class="milestone-card">
     <div class="milestone-num" id="milestoneNum">10</div>
     <div class="milestone-label" id="milestoneLabel">かんせい！</div>
+  </div>
+</div>
+
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-card">
+    <button class="tutorial-skip-btn" id="tutorialSkipBtn">スキップ</button>
+    <div class="tutorial-viewport">
+      <div class="tutorial-track" id="tutorialTrack"></div>
+    </div>
+    <div class="tutorial-dots" id="tutorialDots"></div>
+    <div class="tutorial-nav-row">
+      <button class="tutorial-nav-btn secondary" id="tutorialPrevBtn">← 戻る</button>
+      <button class="tutorial-nav-btn primary" id="tutorialNextBtn">次へ →</button>
+    </div>
   </div>
 </div>
 
@@ -931,6 +969,68 @@ function showMilestone(count){
   playPochiSound();
   overlay.classList.add('show');
   setTimeout(() => { overlay.classList.remove('show'); }, 2600);
+}
+
+// ===== チュートリアル（初回オンボーディング） =====
+// 初めて開いた人にだけ自動で表示し、一度見たらlocalStorageに記録して次回からは出さない。
+// ヘッダーの❓ボタンからはいつでも見返せる。
+const TUTORIAL_SEEN_KEY = 'kawaii_tutorial_seen_v1';
+function hasTutorialBeenSeen(){
+  try{ return localStorage.getItem(TUTORIAL_SEEN_KEY) === '1'; }catch(e){ return false; }
+}
+function markTutorialSeen(){
+  try{ localStorage.setItem(TUTORIAL_SEEN_KEY, '1'); }catch(e){}
+}
+const TUTORIAL_SLIDES = [
+  { icon: '✨', title: 'ようこそ「ぽちたす」へ！', text: 'タスクをぽちっと押すだけの、かわいいタスク管理アプリだよ。使い方をサクッと紹介するね！' },
+  { icon: '📝', title: 'タスクを追加しよう', text: '「✨ タスクを追加する」から、課題名・期限・重要度（⭐1〜3）・タグを入力できるよ。期限をタップすると、年/月/日を選べるシートが開くよ。' },
+  { icon: '📷', title: '写真も貼れる・自動入力も', text: '大きな課題は「サブタスク」で細かいステップに分けられるよ。プリントを撮影すれば「写真から課題名を読み取る」ボタンで、写真の文字を課題名欄に自動入力してくれるよ！' },
+  { icon: '💖', title: 'ぽちっと完了！', text: 'できたら丸いボタンをタップ。「ぽちっ」という音とキラキラが弾けるよ。取り消したいときはもう一度タップでOK。' },
+  { icon: '🔍', title: '探す・絞り込む・並べる', text: '検索欄でタスクを探したり、タグや「すべて／未完了／完了済み」タブで絞り込んだりできるよ。「↕ 重要度順」で並び替えも。絞り込みなしのときはカード左のハンドルをドラッグして自由に並び替えできるよ。' },
+  { icon: '🌅', title: '今日のおすすめ', text: 'アプリを開くと、期限の近さと重要度から自動で「今日やるといいタスク」を提案してくれるよ。タップするだけでそのまま完了にできるよ。' },
+  { icon: '🔔', title: '通知でリマインド', text: '右上の🔔から通知を許可すると、期限当日・前日に教えてくれるよ。iPhoneはホーム画面に追加してから開かないと通知が使えないので注意してね。' },
+  { icon: '🎨', title: '好きな見た目にきせかえ', text: '右上の🎨からテーマを選んだり、好きな色でオリジナルテーマを作ったり、ダークモードに切り替えたりできるよ。' },
+  { icon: '📲', title: 'ホーム画面に追加しよう', text: 'ヘッダーの追加ボタンやブラウザのメニューから「ホーム画面に追加」すると、アプリみたいにサッと開けて、オフラインでも使えるようになるよ。' },
+  { icon: '🎉', title: 'さあ、はじめよう！', text: 'これで基本はバッチリ！わからなくなったら、右上の❓ボタンからこの説明をいつでも見返せるよ。' }
+];
+let tutorialIndex = 0;
+function renderTutorialSlides(){
+  const track = document.getElementById('tutorialTrack');
+  track.innerHTML = '';
+  TUTORIAL_SLIDES.forEach(s => {
+    const slide = document.createElement('div'); slide.className = 'tutorial-slide';
+    const ico = document.createElement('div'); ico.className = 'tutorial-slide-icon'; ico.textContent = s.icon;
+    const ttl = document.createElement('div'); ttl.className = 'tutorial-slide-title'; ttl.textContent = s.title;
+    const txt = document.createElement('div'); txt.className = 'tutorial-slide-text'; txt.textContent = s.text;
+    slide.appendChild(ico); slide.appendChild(ttl); slide.appendChild(txt);
+    track.appendChild(slide);
+  });
+  const dots = document.getElementById('tutorialDots'); dots.innerHTML = '';
+  TUTORIAL_SLIDES.forEach((_, i) => {
+    const d = document.createElement('span'); d.className = 'tutorial-dot';
+    d.setAttribute('role', 'button'); d.setAttribute('aria-label', (i + 1) + '枚目に移動');
+    d.addEventListener('click', () => goToTutorialSlide(i));
+    dots.appendChild(d);
+  });
+}
+function goToTutorialSlide(i){
+  tutorialIndex = Math.max(0, Math.min(TUTORIAL_SLIDES.length - 1, i));
+  document.getElementById('tutorialTrack').style.transform = 'translateX(-' + (tutorialIndex * 100) + '%)';
+  document.querySelectorAll('.tutorial-dot').forEach((d, idx) => d.classList.toggle('active', idx === tutorialIndex));
+  document.getElementById('tutorialPrevBtn').classList.toggle('hidden', tutorialIndex === 0);
+  document.getElementById('tutorialNextBtn').textContent = tutorialIndex === TUTORIAL_SLIDES.length - 1 ? '✨ はじめる ✨' : '次へ →';
+}
+function openTutorial(){
+  tutorialIndex = 0;
+  renderTutorialSlides();
+  goToTutorialSlide(0);
+  document.getElementById('tutorialOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeTutorial(){
+  document.getElementById('tutorialOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  markTutorialSeen();
 }
 
 function toggleSubtask(taskId, si){
@@ -1688,6 +1788,29 @@ function addTask(){
   document.addEventListener('visibilitychange', () => {
     if(document.visibilityState === 'visible') checkDeadlines();
   });
+
+  // チュートリアル：ナビゲーション操作
+  document.getElementById('tutorialSkipBtn').addEventListener('click', closeTutorial);
+  document.getElementById('tutorialNextBtn').addEventListener('click', () => {
+    if(tutorialIndex === TUTORIAL_SLIDES.length - 1) closeTutorial();
+    else goToTutorialSlide(tutorialIndex + 1);
+  });
+  document.getElementById('tutorialPrevBtn').addEventListener('click', () => goToTutorialSlide(tutorialIndex - 1));
+  document.getElementById('tutorialHeaderBtn').addEventListener('click', openTutorial);
+  // スワイプ操作（スマホでの直感的なページめくりに対応）
+  let tutorialTouchStartX = null;
+  const tutorialTrackEl = document.getElementById('tutorialTrack');
+  tutorialTrackEl.addEventListener('touchstart', e => { tutorialTouchStartX = e.touches[0].clientX; }, {passive: true});
+  tutorialTrackEl.addEventListener('touchend', e => {
+    if(tutorialTouchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - tutorialTouchStartX;
+    if(Math.abs(dx) > 40){ if(dx < 0) goToTutorialSlide(tutorialIndex + 1); else goToTutorialSlide(tutorialIndex - 1); }
+    tutorialTouchStartX = null;
+  }, {passive: true});
+  // 初めて開いた人にだけ、少し間を置いてから自動表示する
+  if(!hasTutorialBeenSeen()){
+    setTimeout(openTutorial, 500);
+  }
 })();
 </script>
 </body>
