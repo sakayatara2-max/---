@@ -190,6 +190,7 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
 .notif-section{margin-bottom:6px;}
 .notif-section-title{font-size:.9rem;font-weight:800;color:var(--pink-dark);margin-bottom:6px;}
 .notif-desc{font-size:.8rem;color:var(--text-soft);line-height:1.5;margin:0 0 10px;}
+.notif-ios-hint{background:var(--pink-light);border-radius:12px;padding:11px 13px;font-size:.78rem;color:var(--text);line-height:1.6;margin-bottom:10px;display:flex;gap:6px;align-items:flex-start;}
 .notif-perm-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:700;margin-bottom:10px;}
 .notif-perm-badge.granted{background:#d4edda;color:#155724;}
 .notif-perm-badge.denied{background:#f8d7da;color:#721c24;}
@@ -390,7 +391,8 @@ header p{margin:4px 0 0;font-size:.8rem;color:var(--text-soft);}
     <h2 class="sheet-title" id="notifSheetTitle">🔔 通知設定</h2>
     <div class="notif-section">
       <div class="notif-section-title">📱 ブラウザ通知</div>
-      <p class="notif-desc">期限当日・前日に自動でお知らせします。このアプリを開いている間だけ動作します。</p>
+      <p class="notif-desc">期限当日・前日に自動でお知らせします。このアプリを開いている（または最近開いた）間だけ動作します。</p>
+      <div id="notifIosHint" class="notif-ios-hint" style="display:none"></div>
       <div id="notifPermStatus"></div>
       <button class="notif-action-btn" id="notifPermBtn">🔔 通知を許可する</button>
       <button class="notif-action-btn secondary" id="notifTestBrowserBtn">📬 テスト通知を表示</button>
@@ -557,6 +559,15 @@ function setupPWA(){
                 return networkRes;
               }).catch(() => cached);
               return cached || fetchPromise;
+            })
+          );
+        });
+        self.addEventListener('notificationclick', e => {
+          e.notification.close();
+          e.waitUntil(
+            self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(clientList => {
+              for(const client of clientList){ if('focus' in client) return client.focus(); }
+              if(self.clients.openWindow) return self.clients.openWindow(self.registration.scope);
             })
           );
         });
@@ -1127,10 +1138,26 @@ function renderEditSubtaskList(){
   });
 }
 
+// iPhoneのSafariは「ホーム画面に追加」してから開かないと通知そのものが機能しない（iOS 16.4以降の仕様）。
+// この制約に気づかずハマる人が多いため、該当する状態のときだけ案内を出す。
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
 function updateNotifPermStatus(){
   const status = document.getElementById('notifPermStatus');
   const btn = document.getElementById('notifPermBtn');
+  const iosHint = document.getElementById('notifIosHint');
   const perm = typeof Notification !== 'undefined' ? Notification.permission : 'unavailable';
+
+  if(isIOS() && !isStandalone()){
+    iosHint.style.display = 'flex';
+    iosHint.innerHTML = '<span>📲</span><span>iPhoneでは、まずこのアプリを「ホーム画面に追加」して、ホーム画面のアイコンから開いた状態でないと通知は使えません。Safariでそのまま開いている間は通知が届きません。</span>';
+  } else {
+    iosHint.style.display = 'none';
+  }
   if(perm === 'granted'){
     status.innerHTML = '<span class="notif-perm-badge granted">✅ 通知が許可されています</span>';
     btn.style.display = 'none';
@@ -1155,9 +1182,34 @@ async function requestBrowserNotif(){
     else showToast('⚠️ 通知が許可されませんでした');
   }catch(e){ showToast('⚠️ 通知の許可を取得できませんでした'); }
 }
-function sendBrowserNotif(title, body){
+async function sendBrowserNotif(title, body){
   if(typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-  try{ new Notification(title, {body, icon: NOTIF_ICON}); }catch(e){}
+  // スマホのブラウザ（iOS Safari／Android Chromeなど）は new Notification() を直接呼ぶと
+  // 失敗する（Service Worker経由の showNotification() が必須）ため、まずそちらを優先する。
+  // SWが使えない環境（一部のデスクトップブラウザ等）向けに従来方式もフォールバックとして残す。
+  const options = { body, icon: ICON_192_URI, badge: ICON_192_URI, tag: 'pochitasu-deadline', renotify: true };
+  try{
+    if('serviceWorker' in navigator){
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('sw timeout')), 3000))
+      ]);
+      if(reg && typeof reg.showNotification === 'function'){
+        await reg.showNotification(title, options);
+        return;
+      }
+    }
+  }catch(e){ /* SW経由がダメなら下のフォールバックへ */ }
+  try{ new Notification(title, options); }catch(e){ /* 対応していない環境では諦める */ }
+}
+// 同じ内容の通知が30分おきに何度も来て煩わしくならないよう、
+// タスクごと・緊急度ごと・日付ごとに一度だけ通知したことを記録しておく。
+const NOTIF_DEDUP_KEY = 'kawaii_notif_dedup_v1';
+function getNotifDedup(){
+  try{ return JSON.parse(localStorage.getItem(NOTIF_DEDUP_KEY) || '{}'); }catch(e){ return {}; }
+}
+function saveNotifDedup(obj){
+  try{ localStorage.setItem(NOTIF_DEDUP_KEY, JSON.stringify(obj)); }catch(e){}
 }
 function checkDeadlines(){
   const now = new Date(); now.setHours(0, 0, 0, 0);
@@ -1166,13 +1218,24 @@ function checkDeadlines(){
     if(t.done || !t.deadline) return;
     const dl = new Date(t.deadline + 'T00:00:00');
     const diff = Math.round((dl - now) / (1000 * 60 * 60 * 24));
-    if(diff < 0) urgent.push({t, label: '⚠️ 期限切れ！'});
-    else if(diff === 0) urgent.push({t, label: '🚨 今日が期限！'});
-    else if(diff === 1) urgent.push({t, label: '⏰ 明日が期限'});
+    if(diff < 0) urgent.push({t, label: '⚠️ 期限切れ！', level: 'overdue'});
+    else if(diff === 0) urgent.push({t, label: '🚨 今日が期限！', level: 'today'});
+    else if(diff === 1) urgent.push({t, label: '⏰ 明日が期限', level: 'tomorrow'});
   });
   if(urgent.length === 0) return;
-  const body = urgent.map(u => u.label + ' 「' + u.t.subject + '」').join('\n');
-  const title = urgent.length === 1 ? urgent[0].label + ' ' + urgent[0].t.subject : '期限が近いタスクが' + urgent.length + '件あります';
+
+  const dedup = getNotifDedup();
+  const validIds = new Set(tasks.map(t => t.id));
+  Object.keys(dedup).forEach(k => { if(!validIds.has(k.split('::')[0])) delete dedup[k]; });
+
+  const todayStr = todayDateStr();
+  const fresh = urgent.filter(u => dedup[u.t.id + '::' + u.level + '::' + todayStr] !== true);
+  if(fresh.length === 0){ saveNotifDedup(dedup); return; }
+  fresh.forEach(u => { dedup[u.t.id + '::' + u.level + '::' + todayStr] = true; });
+  saveNotifDedup(dedup);
+
+  const body = fresh.map(u => u.label + ' 「' + u.t.subject + '」').join('\n');
+  const title = fresh.length === 1 ? fresh[0].label + ' ' + fresh[0].t.subject : '期限が近いタスクが' + fresh.length + '件あります';
   sendBrowserNotif(title, body);
 }
 
@@ -1621,6 +1684,10 @@ function addTask(){
 
   setTimeout(checkDeadlines, 1500);
   setInterval(checkDeadlines, 1000 * 60 * 30);
+  // アプリをバックグラウンドから開き直した瞬間にもチェックし、30分間隔の隙間で見逃すのを減らす。
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') checkDeadlines();
+  });
 })();
 </script>
 </body>
